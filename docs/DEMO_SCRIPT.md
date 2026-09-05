@@ -137,6 +137,36 @@ selling and start talking about the pilot.
 
 ---
 
+## WOW #6 — The homework parents actually open (3 minutes)
+
+This is the one that decides whether the app gets used after week three.
+
+Go to **Homework**, still signed in as the principal. Point at the amber
+strip at the top before anything else:
+
+> "Five classes have not posted homework today. You are seeing that at
+> 11 in the morning, not at a parent meeting in December."
+
+Then post one yourself. Pick a class, pick Mathematics, type a real
+assignment — page numbers, what to bring tomorrow — and save.
+
+Now sign out and sign in as a **Parent**. The work you just typed is sitting
+at the top of their screen.
+
+> "That took me twenty seconds and their mother already has it. No WhatsApp
+> group, no forwarded photo of a blackboard at 9 PM, no 'my son said there
+> was no homework'."
+
+**Why this matters more than it looks.** Attendance and fees are things the
+*school* needs. Homework is the thing a *parent* opens the app for, every
+single evening. A school management app that parents open daily renews. One
+they open twice a year does not.
+
+If the principal has children of their own, they will react to this
+personally before they react to it professionally. Let them.
+
+---
+
 ## The Tamil moment (1 minute)
 
 Whenever it fits naturally — usually during attendance — tap the language

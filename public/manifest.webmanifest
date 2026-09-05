@@ -1,5 +1,5 @@
 {
-  "name": "Palli — School Management",
+  "name": "Palli \u2014 School Management",
   "short_name": "Palli",
   "description": "Mobile-first school management for Tamil Nadu schools. Attendance, fees, marks and parent messages.",
   "start_url": "/dashboard",
@@ -10,7 +10,10 @@
   "theme_color": "#1a3c2b",
   "lang": "en",
   "dir": "ltr",
-  "categories": ["education", "productivity"],
+  "categories": [
+    "education",
+    "productivity"
+  ],
   "icons": [
     {
       "src": "/icons/icon-192.png",
@@ -36,19 +39,45 @@
       "name": "Mark attendance",
       "short_name": "Attendance",
       "url": "/attendance",
-      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Assign homework",
+      "short_name": "Homework",
+      "url": "/homework",
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     },
     {
       "name": "Fee collection",
       "short_name": "Fees",
       "url": "/fees",
-      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     },
     {
       "name": "Send announcement",
       "short_name": "Messages",
       "url": "/communication",
-      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }

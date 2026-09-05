@@ -18,6 +18,8 @@ import type {
   DashboardStats,
   Exam,
   FeeRecord,
+  Homework,
+  HomeworkCoverageRow,
   Mark,
   School,
   SessionUser,
@@ -34,6 +36,7 @@ import {
   DAILY_ATTENDANCE,
   EXAMS,
   FEE_RECORDS,
+  HOMEWORK,
   MARKS,
   SCHOOL,
   SECTIONS,
@@ -58,6 +61,7 @@ const store = {
   fees: [...FEE_RECORDS],
   marks: [...MARKS],
   announcements: [...ANNOUNCEMENTS],
+  homework: [...HOMEWORK],
 }
 
 const delay = (ms = 90) => new Promise((r) => setTimeout(r, ms))
@@ -533,6 +537,96 @@ const demoRepo = {
         student_id: child.id,
       },
     ]
+  },
+
+  /* ── Homework ────────────────────────────────────────── */
+
+  /**
+   * Homework for one section, newest first.
+   *
+   * `onOrAfter` (YYYY-MM-DD) trims the history — parents want the last few
+   * days, a teacher reviewing what they set wants a fortnight.
+   */
+  async getHomework(opts: {
+    sectionId?: string
+    onOrAfter?: string
+    limit?: number
+  } = {}): Promise<Homework[]> {
+    await delay(60)
+    let rows = store.homework
+    if (opts.sectionId) rows = rows.filter((h) => h.section_id === opts.sectionId)
+    if (opts.onOrAfter) rows = rows.filter((h) => h.assigned_on >= opts.onOrAfter!)
+
+    const sorted = [...rows].sort((a, b) => {
+      if (a.assigned_on !== b.assigned_on) return a.assigned_on < b.assigned_on ? 1 : -1
+      return a.created_at < b.created_at ? 1 : -1
+    })
+    return opts.limit ? sorted.slice(0, opts.limit) : sorted
+  },
+
+  /** What a parent sees: their child's section only. */
+  async getHomeworkForStudent(studentId: string, limit = 20): Promise<Homework[]> {
+    await delay(60)
+    const student = studentById(studentId)
+    if (!student) return []
+    return demoRepo.getHomework({ sectionId: student.section_id, limit })
+  },
+
+  async saveHomework(input: {
+    sectionId: string
+    subjectId: string
+    title: string
+    description: string
+    dueOn: string
+    assignedBy: string
+    assignedOn?: string
+  }): Promise<Homework> {
+    await delay(400)
+    const hw: Homework = {
+      id: `hw_${Date.now()}`,
+      school_id: SCHOOL.id,
+      section_id: input.sectionId,
+      subject_id: input.subjectId,
+      title: input.title.trim(),
+      description: input.description.trim(),
+      assigned_on: input.assignedOn ?? todayISO(),
+      due_on: input.dueOn,
+      assigned_by: input.assignedBy,
+      created_at: new Date().toISOString(),
+    }
+    store.homework.unshift(hw)
+    return hw
+  },
+
+  async deleteHomework(id: string): Promise<void> {
+    await delay(200)
+    const i = store.homework.findIndex((h) => h.id === id)
+    if (i >= 0) store.homework.splice(i, 1)
+  },
+
+  /**
+   * Which classes have homework posted for a given day.
+   *
+   * This is the principal's version of the feature: not the homework itself,
+   * but whether every class actually got some. A correspondent asking "how do
+   * I know my teachers are doing this?" is asking for exactly this screen.
+   */
+  async getHomeworkCoverage(date?: string): Promise<HomeworkCoverageRow[]> {
+    await delay(80)
+    const day = date ?? todayISO()
+    const forDay = store.homework.filter((h) => h.assigned_on === day)
+
+    return SECTIONS.map((sec) => {
+      const rows = forDay.filter((h) => h.section_id === sec.id)
+      return {
+        section_id: sec.id,
+        label: sec.label,
+        count: rows.length,
+        subjects: rows
+          .map((h) => subjectById(h.subject_id)?.name ?? '')
+          .filter(Boolean),
+      }
+    })
   },
 }
 

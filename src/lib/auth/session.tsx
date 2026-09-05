@@ -23,22 +23,26 @@ export type Capability =
   | 'enter_marks'
   | 'send_announcements'
   | 'view_staff'
+  | 'assign_homework'
   | 'view_own_child'
 
 const MATRIX: Record<Role, Capability[]> = {
   correspondent: [
     'view_dashboard', 'view_all_students', 'manage_fees', 'send_announcements',
-    'view_staff', 'enter_marks', 'mark_attendance',
+    'view_staff', 'enter_marks', 'mark_attendance', 'assign_homework',
   ],
   principal: [
     'view_dashboard', 'view_all_students', 'manage_fees', 'send_announcements',
-    'view_staff', 'enter_marks', 'mark_attendance',
+    'view_staff', 'enter_marks', 'mark_attendance', 'assign_homework',
   ],
   admin: [
     'view_dashboard', 'view_all_students', 'manage_fees', 'send_announcements',
     'view_staff',
   ],
-  teacher: ['view_dashboard', 'mark_attendance', 'enter_marks', 'view_all_students'],
+  teacher: [
+    'view_dashboard', 'mark_attendance', 'enter_marks', 'view_all_students',
+    'assign_homework',
+  ],
   parent: ['view_own_child'],
 }
 

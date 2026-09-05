@@ -5,8 +5,8 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   BadgeIndianRupee, BookOpenCheck, CalendarCheck2, GraduationCap, LayoutDashboard,
-  LogOut, Megaphone, Menu, Moon, Settings, Sun, Users, X, Languages, UserRound,
-  type LucideIcon,
+  LogOut, Megaphone, Menu, Moon, NotebookPen, Settings, Sun, Users, X, Languages,
+  UserRound, type LucideIcon,
 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -26,6 +26,7 @@ interface NavItem {
 const NAV: NavItem[] = [
   { href: '/dashboard', labelKey: 'nav.dashboard', icon: LayoutDashboard, capability: 'view_dashboard' },
   { href: '/attendance', labelKey: 'nav.attendance', icon: CalendarCheck2, capability: 'mark_attendance' },
+  { href: '/homework', labelKey: 'nav.homework', icon: NotebookPen, capability: 'assign_homework' },
   { href: '/students', labelKey: 'nav.students', icon: Users, capability: 'view_all_students' },
   { href: '/fees', labelKey: 'nav.fees', icon: BadgeIndianRupee, capability: 'manage_fees' },
   { href: '/exams', labelKey: 'nav.exams', icon: BookOpenCheck, capability: 'enter_marks' },

@@ -251,6 +251,26 @@ create table if not exists announcements (
 );
 create index if not exists announcements_school_idx on announcements(school_id, sent_at desc);
 
+-- ── Homework ──────────────────────────────────────────────────────
+-- Always scoped to one section, never a whole standard: 8-A and 8-B are
+-- taught by different teachers and get different work.
+create table if not exists homework (
+  id          uuid primary key default uuid_generate_v4(),
+  school_id   uuid not null references schools(id) on delete cascade,
+  section_id  uuid not null references sections(id) on delete cascade,
+  subject_id  uuid not null references subjects(id) on delete cascade,
+  title       text not null,
+  description text not null default '',
+  assigned_on date not null default current_date,
+  due_on      date not null,
+  assigned_by uuid references profiles(id) on delete set null,
+  created_at  timestamptz not null default now(),
+  -- Work cannot be due before it was set.
+  constraint homework_due_after_assigned check (due_on >= assigned_on)
+);
+create index if not exists homework_section_idx on homework(section_id, assigned_on desc);
+create index if not exists homework_school_idx  on homework(school_id, assigned_on desc);
+
 -- ── Audit trail ───────────────────────────────────────────────────
 -- The DPDP Act expects you to be able to show who touched student data.
 create table if not exists audit_log (
@@ -313,5 +333,20 @@ language sql stable security definer set search_path = public as $$
   select exists (
     select 1 from guardians g
     where g.student_id = stu and g.profile_id = auth.uid()
+  )
+$$;
+
+-- True when the caller is a guardian of any student in that section.
+-- Homework is per-section, so a parent's read access is checked against the
+-- section their child sits in rather than against each student row.
+create or replace function guards_section(sec uuid) returns boolean
+language sql stable security definer set search_path = public as $$
+  select exists (
+    select 1
+    from guardians g
+    join students s on s.id = g.student_id
+    where g.profile_id = auth.uid()
+      and s.section_id = sec
+      and s.active
   )
 $$;

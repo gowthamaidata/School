@@ -169,6 +169,32 @@ export interface Mark {
   entered_by: string
 }
 
+/* ── Homework ───────────────────────────────────────────── */
+export interface Homework {
+  id: string
+  school_id: string
+  /** Homework is always assigned to one section, never a whole standard. */
+  section_id: string
+  subject_id: string
+  title: string
+  /** The actual work — page numbers, sums, what to bring tomorrow. */
+  description: string
+  /** Date the work was set (YYYY-MM-DD). */
+  assigned_on: string
+  /** Date it must be submitted (YYYY-MM-DD). */
+  due_on: string
+  assigned_by: string
+  created_at: string
+}
+
+/** One row of "did this class get homework today?" for the principal. */
+export interface HomeworkCoverageRow {
+  section_id: string
+  label: string
+  count: number
+  subjects: string[]
+}
+
 /* ── Communication ──────────────────────────────────────── */
 export interface Announcement {
   id: string

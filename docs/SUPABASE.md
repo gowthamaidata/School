@@ -259,3 +259,31 @@ run against a live project. When you first switch modes, expect to fix a column
 name or a join, not to rewrite the file. Work through the checklist above one
 screen at a time and fix what breaks — the structure is sound, the details need
 your first real database to shake out.
+
+---
+
+## Homework
+
+The `homework` table is created by `01_schema.sql` and secured by
+`02_rls.sql`. Both files are idempotent — `create table if not exists`,
+`create or replace function`, `drop policy if exists` — so if you ran an
+earlier version of them, simply run both again to add homework. Nothing
+already in the database is dropped or rewritten.
+
+Two things are worth knowing about its policy:
+
+- **Reads** are allowed for any staff member in the school, and for parents
+  whose child sits in that *section*. A parent of a 6-B child cannot read
+  9-A's homework, and that boundary is enforced by the `guards_section()`
+  helper in Postgres rather than by the app.
+- **Writes** are allowed for office roles across every section, and for a
+  class teacher only on their own section — the same rule attendance uses.
+
+To verify tenancy after import, sign in as a parent and run:
+
+```sql
+select count(*) from homework;
+```
+
+You should see only the rows for that child's section. If you see the whole
+school's homework, RLS is not on — re-run `02_rls.sql`.

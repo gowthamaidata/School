@@ -23,8 +23,8 @@ import { gradeFor, pct, todayISO } from '@/lib/utils'
 import { getSupabase, unwrap } from './supabase-client'
 import type {
   Announcement, AttendanceRecord, AttendanceStatus, AttendanceSummary,
-  ClassAttendanceRow, ClassSection, DashboardStats, Exam, FeeRecord, Mark,
-  School, SessionUser, Staff, Student, Subject,
+  ClassAttendanceRow, ClassSection, DashboardStats, Exam, FeeRecord, Homework,
+  HomeworkCoverageRow, Mark, School, SessionUser, Staff, Student, Subject,
 } from './types'
 
 const sb = () => getSupabase()
@@ -635,5 +635,122 @@ export const supabaseRepo = {
 
   async signOut(): Promise<void> {
     await sb().auth.signOut()
+  },
+
+  /* ── Homework ──────────────────────────────────────────────── */
+
+  async getHomework(opts: {
+    sectionId?: string
+    onOrAfter?: string
+    limit?: number
+  } = {}): Promise<Homework[]> {
+    let q = sb()
+      .from('homework')
+      .select('*')
+      .order('assigned_on', { ascending: false })
+      .order('created_at', { ascending: false })
+
+    if (opts.sectionId) q = q.eq('section_id', opts.sectionId)
+    if (opts.onOrAfter) q = q.gte('assigned_on', opts.onOrAfter)
+    if (opts.limit) q = q.limit(opts.limit)
+
+    return unwrap(await q) as Homework[]
+  },
+
+  /**
+   * A parent's view. The RLS policy already limits homework to sections their
+   * child sits in, so this only needs the student's own section to order the
+   * result — it is not what enforces the boundary.
+   */
+  async getHomeworkForStudent(studentId: string, limit = 20): Promise<Homework[]> {
+    const student = unwrap(
+      await sb().from('students').select('section_id').eq('id', studentId).single(),
+    ) as { section_id: string } | null
+    if (!student) return []
+
+    return unwrap(
+      await sb()
+        .from('homework')
+        .select('*')
+        .eq('section_id', student.section_id)
+        .order('assigned_on', { ascending: false })
+        .order('created_at', { ascending: false })
+        .limit(limit),
+    ) as Homework[]
+  },
+
+  async saveHomework(input: {
+    sectionId: string
+    subjectId: string
+    title: string
+    description: string
+    dueOn: string
+    assignedBy: string
+    assignedOn?: string
+  }): Promise<Homework> {
+    const schoolId = (await this.getSchool()).id
+
+    return unwrap(
+      await sb()
+        .from('homework')
+        .insert({
+          school_id: schoolId,
+          section_id: input.sectionId,
+          subject_id: input.subjectId,
+          title: input.title.trim(),
+          description: input.description.trim(),
+          assigned_on: input.assignedOn ?? todayISO(),
+          due_on: input.dueOn,
+          assigned_by: input.assignedBy,
+        })
+        .select()
+        .single(),
+    ) as Homework
+  },
+
+  async deleteHomework(id: string): Promise<void> {
+    unwrap(await sb().from('homework').delete().eq('id', id))
+  },
+
+  /**
+   * Which sections have homework posted for a day.
+   *
+   * Every section is returned, including the ones with nothing — a coverage
+   * view that silently omits the classes that did not post would hide exactly
+   * the thing it exists to surface.
+   */
+  async getHomeworkCoverage(date?: string): Promise<HomeworkCoverageRow[]> {
+    const day = date ?? todayISO()
+
+    const [sections, rows] = await Promise.all([
+      sb().from('sections').select('id,standard,section,label').order('standard'),
+      sb()
+        .from('homework')
+        .select('section_id, subjects(name)')
+        .eq('assigned_on', day),
+    ])
+
+    const secs = unwrap(sections) as { id: string; label: string }[]
+    // PostgREST returns an embedded one-to-one as an object on some versions
+    // and a single-element array on others, so normalise rather than assume.
+    const hw = unwrap(rows) as {
+      section_id: string
+      subjects: { name: string } | { name: string }[] | null
+    }[]
+
+    const subjectName = (s: (typeof hw)[number]['subjects']): string => {
+      if (!s) return ''
+      return Array.isArray(s) ? (s[0]?.name ?? '') : s.name
+    }
+
+    return secs.map((sec) => {
+      const mine = hw.filter((h) => h.section_id === sec.id)
+      return {
+        section_id: sec.id,
+        label: sec.label,
+        count: mine.length,
+        subjects: mine.map((h) => subjectName(h.subjects)).filter(Boolean),
+      }
+    })
   },
 }

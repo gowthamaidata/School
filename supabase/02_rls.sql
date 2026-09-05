@@ -230,3 +230,33 @@ create policy audit_insert on audit_log
 --  Every application table must show rowsecurity = true. If any shows
 --  false, that table is readable by anyone holding the anon key.
 -- ═══════════════════════════════════════════════════════════════════
+
+-- ── homework ──────────────────────────────────────────────────────
+-- Read: any staff member in the school, plus the parents of children in
+-- that particular section — and nobody else. A parent of a 6-B child
+-- cannot read 9-A's homework.
+--
+-- Write: office roles for any section; a class teacher only for their own.
+-- This mirrors the attendance policy, so the same mental model applies.
+alter table homework enable row level security;
+
+drop policy if exists homework_read on homework;
+create policy homework_read on homework
+  for select using (
+    school_id = current_school_id()
+    and (is_staff() or guards_section(section_id))
+  );
+
+drop policy if exists homework_write_office on homework;
+create policy homework_write_office on homework
+  for all using (school_id = current_school_id() and is_office())
+  with check (school_id = current_school_id() and is_office());
+
+drop policy if exists homework_write_teacher on homework;
+create policy homework_write_teacher on homework
+  for all using (
+    school_id = current_school_id() and teaches_section(section_id)
+  )
+  with check (
+    school_id = current_school_id() and teaches_section(section_id)
+  );

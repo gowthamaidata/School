@@ -17,6 +17,7 @@ import type {
   Exam,
   FeeRecord,
   FeeStructure,
+  Homework,
   Mark,
   School,
   Staff,
@@ -543,3 +544,165 @@ export const ANNOUNCEMENTS: Announcement[] = [
     sent_at: '2026-08-20T14:20:00', recipients: 512, delivered: 505, read: 402,
   },
 ]
+
+/* ── Homework ───────────────────────────────────────────── */
+
+/**
+ * Realistic homework text by subject and standard band. Written the way a
+ * Tamil Nadu matriculation teacher actually words it — page numbers, sum
+ * ranges, and what to bring tomorrow — because a principal reads these and
+ * decides in about four seconds whether the app understands their school.
+ */
+const HOMEWORK_TEMPLATES: Record<string, { junior: [string, string][]; senior: [string, string][] }> = {
+  sub_ta: {
+    junior: [
+      ['பாடம் 4 — சொல் வகைகள்', 'பக்கம் 38-ல் உள்ள சொற்களை மூன்று முறை எழுதி வரவும். புதிய சொற்கள் ஐந்திற்கு வாக்கியம் அமைக்கவும்.'],
+      ['திருக்குறள் மனப்பாடம்', 'அதிகாரம் 4 — அறன் வலியுறுத்தல். முதல் ஐந்து குறள்களை மனப்பாடம் செய்து வரவும். நாளை வகுப்பில் ஒப்புவிக்க வேண்டும்.'],
+      ['கடிதம் எழுதுதல்', 'விடுமுறை கேட்டு தலைமை ஆசிரியருக்கு ஒரு கடிதம் எழுதவும். நோட்டுப் புத்தகத்தில் எழுதி வரவும்.'],
+    ],
+    senior: [
+      ['இலக்கணம் — வினைமுற்று', 'பக்கம் 112 முதல் 115 வரை படித்து, பயிற்சி வினாக்கள் 1 முதல் 8 வரை விடையளிக்கவும்.'],
+      ['கட்டுரை — சுற்றுச்சூழல் பாதுகாப்பு', 'இருநூறு சொற்களில் கட்டுரை எழுதி வரவும். புள்ளிவிவரங்களைச் சேர்க்கவும்.'],
+    ],
+  },
+  sub_en: {
+    junior: [
+      ['Unit 3 — Reading comprehension', 'Read the passage on page 42 and answer questions 1 to 6 in your notebook. Underline any five new words and write their meanings.'],
+      ['Spelling and dictation', 'Learn the twenty spelling words from page 45. Dictation test tomorrow. Write each word three times.'],
+      ['Picture composition', 'Write eight sentences describing the picture on page 51. Use at least three adjectives.'],
+    ],
+    senior: [
+      ['Letter writing — formal', 'Write a letter to the Municipal Commissioner about the poor street lighting near the school. Follow the format on page 88.'],
+      ['Grammar — active and passive voice', 'Complete Exercise 5A and 5B on pages 96 and 97. Both to be done in the grammar notebook.'],
+      ['Prose — comprehension questions', 'Answer questions 1 to 5 from "The Last Leaf" in about 60 words each.'],
+    ],
+  },
+  sub_ma: {
+    junior: [
+      ['Multiplication tables 12 to 16', 'Write tables 12 to 16 five times each. Oral test tomorrow morning.'],
+      ['Chapter 5 — Fractions', 'Solve sums 1 to 12 from Exercise 5.2 on page 63. Show all working steps.'],
+      ['Word problems', 'Solve the eight word problems on page 70. Draw a rough diagram for each one.'],
+    ],
+    senior: [
+      ['Exercise 6.3 — Trigonometry', 'Solve problems 1 to 10 on page 134. Show every step; answers alone will not be accepted.'],
+      ['Chapter 4 — Quadratic equations', 'Complete Exercise 4.2 fully. Revise the discriminant formula for the class test on Friday.'],
+      ['Coordinate geometry — practice', 'Solve sums 5 to 15 from Exercise 5.4. Bring graph sheets tomorrow.'],
+    ],
+  },
+  sub_sc: {
+    junior: [
+      ['Chapter 6 — Plants around us', 'Draw and label the parts of a flower. Collect two different leaves and paste them in your record notebook.'],
+      ['States of matter', 'Read pages 55 to 58. Write the definitions of solid, liquid and gas with two examples each.'],
+      ['Simple experiment', 'Observe what happens to a glass of water kept in sunlight for four hours. Write four sentences on what you noticed.'],
+    ],
+    senior: [
+      ['Chapter 8 — Chemical reactions', 'Write balanced equations for questions 1 to 8 on page 121. Learn the reactivity series.'],
+      ['Diagram practice', 'Draw and label the human respiratory system. Neat diagram in the record notebook, to be submitted tomorrow.'],
+      ['Numerical problems — Light', 'Solve the six numerical problems on page 145 using the mirror formula.'],
+    ],
+  },
+  sub_ss: {
+    junior: [
+      ['Chapter 4 — Our state Tamil Nadu', 'Mark the 38 districts on the outline map given. Learn the names of the five neighbouring states.'],
+      ['Civics — Local government', 'Answer questions 1 to 5 on page 78. Write four lines about what a Panchayat does.'],
+    ],
+    senior: [
+      ['History — Freedom movement', 'Answer the five-mark questions 1 to 4 from Chapter 7. Write about 100 words for each.'],
+      ['Geography — map work', 'On the India outline map, mark the major river systems and the four metropolitan cities. Bring the map tomorrow.'],
+      ['Economics — Chapter 3', 'Read pages 88 to 94 and prepare notes on the five sectors of the Indian economy.'],
+    ],
+  },
+  sub_cs: {
+    junior: [
+      ['MS Word practice', 'Type the paragraph on page 34, make the heading bold and centred, and save the file as your name. Practical test next week.'],
+      ['Parts of a computer', 'Draw the block diagram of a computer and label the input, output and processing units.'],
+    ],
+    senior: [
+      ['Python — loops', 'Write programs for questions 1 to 5 on page 102 using for and while loops. Bring your record notebook with output written.'],
+      ['SQL practice', 'Write SELECT queries for the eight problems on page 118. Practical session tomorrow in the lab.'],
+    ],
+  },
+  sub_ph: {
+    junior: [],
+    senior: [
+      ['Unit 3 — Laws of motion', 'Solve numerical problems 1 to 8 on page 87. Derive the equation for a body on an inclined plane.'],
+      ['Practical record', 'Complete the write-up for the simple pendulum experiment including observations, calculations and the result. Submit tomorrow.'],
+    ],
+  },
+  sub_ch: {
+    junior: [],
+    senior: [
+      ['Unit 5 — Periodic classification', 'Learn the first 30 elements with their symbols and atomic numbers. Test tomorrow.'],
+      ['Organic chemistry — nomenclature', 'Name the twelve structures given on page 143 using IUPAC rules. Write in the chemistry notebook.'],
+    ],
+  },
+  sub_bi: {
+    junior: [],
+    senior: [
+      ['Unit 4 — Cell biology', 'Draw a labelled diagram of a plant cell and an animal cell. Write five points of difference between them.'],
+      ['Genetics — problems', 'Solve the monohybrid and dihybrid cross problems 1 to 6 on page 129. Draw Punnett squares for each.'],
+    ],
+  },
+}
+
+/**
+ * Homework for the last five school days.
+ *
+ * Coverage is deliberately incomplete: not every section gets homework every
+ * day, and a handful of sections have nothing set today. That is what makes
+ * the principal's coverage view worth looking at — a screen that always shows
+ * 100% tells them nothing.
+ */
+export const HOMEWORK: Homework[] = (() => {
+  const out: Homework[] = []
+  const days = recentSchoolDays(5)
+
+  days.forEach((day, dayIndex) => {
+    for (const sec of SECTIONS) {
+      // Today, a few sections have not posted yet — that is the alert.
+      const isToday = dayIndex === 0
+      if (isToday && SECTIONS.indexOf(sec) >= 19) continue
+
+      const subjects = subjectsForStandard(sec.standard)
+      // One to three subjects set work on a given day, which is how a real
+      // timetable falls out — not every teacher gives homework every day.
+      const howMany = rand() < 0.25 ? 1 : rand() < 0.75 ? 2 : 3
+      const start = Math.floor(rand() * subjects.length)
+
+      for (let k = 0; k < howMany; k++) {
+        const subject = subjects[(start + k) % subjects.length]
+        const pool = HOMEWORK_TEMPLATES[subject.id]
+        if (!pool) continue
+        const band = sec.standard <= 8 ? pool.junior : pool.senior
+        const list = band.length > 0 ? band : pool.senior.length > 0 ? pool.senior : pool.junior
+        if (list.length === 0) continue
+
+        const [title, description] = list[Math.floor(rand() * list.length)]
+
+        // Due the next school day, except weekend work which gets an extra day.
+        const assigned = new Date(day)
+        const due = new Date(assigned)
+        due.setDate(due.getDate() + (assigned.getDay() === 6 ? 2 : 1))
+
+        const teacher =
+          STAFF.filter((s) => s.role === 'teacher' && s.subjects.includes(subject.name))[0] ??
+          STAFF.find((s) => s.role === 'teacher')!
+
+        out.push({
+          id: `hw_${sec.id}_${subject.id}_${day}`,
+          school_id: SCHOOL.id,
+          section_id: sec.id,
+          subject_id: subject.id,
+          title,
+          description,
+          assigned_on: day,
+          due_on: due.toISOString().slice(0, 10),
+          assigned_by: teacher.id,
+          created_at: `${day}T${String(between(14, 17)).padStart(2, '0')}:${String(between(10, 55)).padStart(2, '0')}:00`,
+        })
+      }
+    }
+  })
+
+  return out
+})()

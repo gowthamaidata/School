@@ -2,17 +2,17 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { CalendarCheck2, FileText, Megaphone, Wallet } from 'lucide-react'
+import { BookOpen, CalendarCheck2, FileText, Megaphone, NotebookPen, Wallet } from 'lucide-react'
 
 import { usePrefs } from '@/lib/i18n/provider'
 import { useSession } from '@/lib/auth/session'
-import { repo, SCHOOL } from '@/lib/data/repository'
+import { repo, SCHOOL, subjectById } from '@/lib/data/repository'
 import type {
-  Announcement, AttendanceSummary, ClassSection, Exam, FeeRecord, Student,
+  Announcement, AttendanceSummary, ClassSection, Exam, FeeRecord, Homework, Student,
 } from '@/lib/data/types'
-import { formatDate, formatINR, gradeFor, ordinal } from '@/lib/utils'
+import { formatDate, formatINR, gradeFor, ordinal, todayISO } from '@/lib/utils'
 import {
-  Badge, Button, Card, CardHeader, PageHeader, Progress, Skeleton, Stat,
+  Badge, Button, Card, CardHeader, Empty, PageHeader, Progress, Skeleton, Stat,
 } from '@/components/ui'
 
 type Report = NonNullable<Awaited<ReturnType<typeof repo.getReportCard>>>
@@ -28,6 +28,7 @@ export default function ParentPage() {
   const [report, setReport] = useState<Report | null>(null)
   const [exam, setExam] = useState<Exam | null>(null)
   const [news, setNews] = useState<Announcement[]>([])
+  const [homework, setHomework] = useState<Homework[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -37,12 +38,13 @@ export default function ParentPage() {
     async function load(studentId: string) {
       const s = await repo.getStudent(studentId)
       if (!s || !alive) return
-      const [secs, sum, f, exams, ann] = await Promise.all([
+      const [secs, sum, f, exams, ann, hw] = await Promise.all([
         repo.getSections(),
         repo.getAttendanceSummary(s.id),
         repo.getFeeRecordsForStudent(s.id),
         repo.getExams(),
         repo.getAnnouncements(5),
+        repo.getHomeworkForStudent(s.id, 12),
       ])
       const latest = exams.filter((e) => e.published).at(-1) ?? null
       const rc = latest ? await repo.getReportCard(s.id, latest.id) : null
@@ -55,6 +57,7 @@ export default function ParentPage() {
       setExam(latest)
       setReport(rc)
       setNews(ann)
+      setHomework(hw)
       setLoading(false)
     }
 
@@ -81,6 +84,10 @@ export default function ParentPage() {
   const outstanding = fees.reduce((s, f) => s + (f.amount_due - f.amount_paid), 0)
   const nextDue = fees.find((f) => f.status !== 'paid')
   const attPct = summary?.percentage ?? 0
+
+  const today = todayISO()
+  const todaysHomework = homework.filter((h) => h.assigned_on === today)
+  const earlierHomework = homework.filter((h) => h.assigned_on !== today)
 
   return (
     <>
@@ -161,6 +168,40 @@ export default function ParentPage() {
           <Button size="sm">{t('par.payNow')}</Button>
         </Card>
       )}
+
+      {/* ── Homework — the reason a parent opens this daily ── */}
+      <Card className="mt-4">
+        <CardHeader
+          title={t('par.homework')}
+          hint={`${t('common.class')} ${section?.label ?? ''} · ${formatDate(todayISO(), 'long')}`}
+          action={
+            <Badge tone={todaysHomework.length > 0 ? 'forest' : 'neutral'}>
+              {todaysHomework.length} {t('common.today').toLowerCase()}
+            </Badge>
+          }
+        />
+
+        {todaysHomework.length === 0 ? (
+          <Empty title={t('hw.noneToday')} icon={<NotebookPen size={22} />} />
+        ) : (
+          <div className="divide-y divide-line">
+            {todaysHomework.map((h) => (
+              <ParentHomeworkRow key={h.id} hw={h} />
+            ))}
+          </div>
+        )}
+
+        {earlierHomework.length > 0 && (
+          <div className="border-t border-line">
+            <div className="label-mono px-4 pt-3">{t('hw.recent')}</div>
+            <div className="divide-y divide-line">
+              {earlierHomework.slice(0, 5).map((h) => (
+                <ParentHomeworkRow key={h.id} hw={h} muted />
+              ))}
+            </div>
+          </div>
+        )}
+      </Card>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
         {/* ── Latest results ──────────────────────────── */}
@@ -286,5 +327,43 @@ export default function ParentPage() {
         </div>
       </div>
     </>
+  )
+}
+
+/* ── One homework entry, as a parent sees it ───────────── */
+function ParentHomeworkRow({ hw, muted = false }: { hw: Homework; muted?: boolean }) {
+  const { t, locale } = usePrefs()
+  const subject = subjectById(hw.subject_id)
+  const today = todayISO()
+
+  // Work from earlier in the week has already been handed in; marking all of
+  // it red would train a parent to ignore the colour entirely.
+  const dueTone = muted ? 'neutral' : hw.due_on < today ? 'danger' : hw.due_on === today ? 'clay' : 'forest'
+  const dueLabel =
+    !muted && hw.due_on < today
+      ? t('hw.overdue')
+      : !muted && hw.due_on === today
+        ? t('hw.dueToday')
+        : `${t('hw.dueOn')} ${formatDate(hw.due_on)}`
+
+  return (
+    <div className={`flex items-start gap-3 px-4 py-3 ${muted ? 'opacity-75' : ''}`}>
+      <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded bg-forest-dim text-forest">
+        <BookOpen size={15} />
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge tone="info">{locale === 'ta' ? subject?.name_ta : subject?.name}</Badge>
+          <h3 className="text-sm font-semibold leading-snug text-ink">{hw.title}</h3>
+        </div>
+        <p className="mt-1 text-xs leading-relaxed text-ink-2">{hw.description}</p>
+        <div className="mt-1.5 flex flex-wrap items-center gap-2 font-mono text-2xs text-ink-3">
+          <span>
+            {t('hw.assignedOn')} {formatDate(hw.assigned_on)}
+          </span>
+          <Badge tone={dueTone}>{dueLabel}</Badge>
+        </div>
+      </div>
+    </div>
   )
 }

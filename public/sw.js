@@ -8,7 +8,10 @@
  *   - Never cache POST/PUT or cross-origin API calls.
  */
 
-const VERSION = 'palli-v1'
+// Bump this on every release that changes the shell. Anyone who installed an
+// earlier build keeps serving the old cache until the version string changes.
+// v2 — added the homework module.
+const VERSION = 'palli-v2'
 const SHELL_CACHE = `${VERSION}-shell`
 const RUNTIME_CACHE = `${VERSION}-runtime`
 

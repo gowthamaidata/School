@@ -11,7 +11,7 @@ until a school signs.
 
 ## What's in it
 
-Seven modules, matching the MVP scope:
+Eight modules:
 
 | # | Module | What it does |
 |---|--------|--------------|
@@ -22,6 +22,7 @@ Seven modules, matching the MVP scope:
 | 5 | **Exams & marks** | Subject-by-subject entry, live class average and pass %, auto grades |
 | 6 | **Report cards** | A4 print-ready progress report with rank, grades, attendance and signature blocks |
 | 7 | **Directories & roles** | Students, staff, and five roles with different access — enforced in the database |
+| 8 | **Homework** | Teachers post the day's work per class; parents see it instantly. Principals see which classes have not posted |
 
 Plus: bilingual EN/தமிழ் throughout, light and dark themes, and installable as
 an app on any Android phone, iPhone or desktop.
@@ -120,6 +121,7 @@ src/
 │       ├── exams/            Marks entry
 │       ├── report-card/[id]/ Printable A4 report
 │       ├── communication/    Parent announcements
+│       ├── homework/         Daily work per class
 │       ├── staff/            Staff directory
 │       ├── parent/           Parent portal
 │       └── settings/         Language, theme, install
