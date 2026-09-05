@@ -1,0 +1,247 @@
+/**
+ * Bilingual dictionary — English / தமிழ்
+ *
+ * Tamil translations use terminology familiar in Tamil Nadu matriculation
+ * and CBSE schools (e.g. தாளாளர் for Correspondent, மாற்றுச் சான்றிதழ் for TC).
+ */
+
+export type Locale = 'en' | 'ta'
+
+export const LOCALES: { code: Locale; label: string; native: string }[] = [
+  { code: 'en', label: 'English', native: 'English' },
+  { code: 'ta', label: 'Tamil', native: 'தமிழ்' },
+]
+
+const dict = {
+  // ── Brand / generic ──────────────────────────────────────
+  'app.name': { en: 'Palli', ta: 'பள்ளி' },
+  'app.tagline': {
+    en: 'School management, built for Tamil Nadu',
+    ta: 'தமிழ்நாட்டுப் பள்ளிகளுக்கான மேலாண்மை தளம்',
+  },
+  'common.loading': { en: 'Loading…', ta: 'ஏற்றுகிறது…' },
+  'common.save': { en: 'Save', ta: 'சேமி' },
+  'common.saving': { en: 'Saving…', ta: 'சேமிக்கிறது…' },
+  'common.saved': { en: 'Saved', ta: 'சேமிக்கப்பட்டது' },
+  'common.cancel': { en: 'Cancel', ta: 'ரத்து' },
+  'common.close': { en: 'Close', ta: 'மூடு' },
+  'common.search': { en: 'Search', ta: 'தேடு' },
+  'common.filter': { en: 'Filter', ta: 'வடிகட்டு' },
+  'common.all': { en: 'All', ta: 'அனைத்தும்' },
+  'common.none': { en: 'None', ta: 'எதுவுமில்லை' },
+  'common.total': { en: 'Total', ta: 'மொத்தம்' },
+  'common.export': { en: 'Export', ta: 'ஏற்றுமதி' },
+  'common.print': { en: 'Print', ta: 'அச்சிடு' },
+  'common.back': { en: 'Back', ta: 'பின்செல்' },
+  'common.next': { en: 'Next', ta: 'அடுத்து' },
+  'common.submit': { en: 'Submit', ta: 'சமர்ப்பி' },
+  'common.send': { en: 'Send', ta: 'அனுப்பு' },
+  'common.viewAll': { en: 'View all', ta: 'அனைத்தையும் காண்க' },
+  'common.today': { en: 'Today', ta: 'இன்று' },
+  'common.class': { en: 'Class', ta: 'வகுப்பு' },
+  'common.section': { en: 'Section', ta: 'பிரிவு' },
+  'common.name': { en: 'Name', ta: 'பெயர்' },
+  'common.status': { en: 'Status', ta: 'நிலை' },
+  'common.actions': { en: 'Actions', ta: 'செயல்கள்' },
+  'common.date': { en: 'Date', ta: 'தேதி' },
+  'common.amount': { en: 'Amount', ta: 'தொகை' },
+  'common.phone': { en: 'Phone', ta: 'தொலைபேசி' },
+  'common.noResults': { en: 'No results found', ta: 'முடிவுகள் இல்லை' },
+  'common.optional': { en: 'optional', ta: 'விருப்பத்தேர்வு' },
+
+  // ── Navigation ───────────────────────────────────────────
+  'nav.dashboard': { en: 'Dashboard', ta: 'முகப்பு' },
+  'nav.attendance': { en: 'Attendance', ta: 'வருகைப் பதிவு' },
+  'nav.students': { en: 'Students', ta: 'மாணவர்கள்' },
+  'nav.staff': { en: 'Staff', ta: 'ஆசிரியர்கள்' },
+  'nav.fees': { en: 'Fees', ta: 'கட்டணம்' },
+  'nav.exams': { en: 'Exams & Marks', ta: 'தேர்வு & மதிப்பெண்' },
+  'nav.communication': { en: 'Messages', ta: 'செய்திகள்' },
+  'nav.reportCards': { en: 'Report Cards', ta: 'மதிப்பெண் அட்டை' },
+  'nav.settings': { en: 'Settings', ta: 'அமைப்புகள்' },
+  'nav.myChild': { en: 'My Child', ta: 'என் குழந்தை' },
+  'nav.signOut': { en: 'Sign out', ta: 'வெளியேறு' },
+
+  // ── Roles ────────────────────────────────────────────────
+  'role.principal': { en: 'Principal', ta: 'தலைமையாசிரியர்' },
+  'role.correspondent': { en: 'Correspondent', ta: 'தாளாளர்' },
+  'role.admin': { en: 'Office Admin', ta: 'அலுவலக நிர்வாகி' },
+  'role.teacher': { en: 'Teacher', ta: 'ஆசிரியர்' },
+  'role.parent': { en: 'Parent', ta: 'பெற்றோர்' },
+
+  // ── Auth ─────────────────────────────────────────────────
+  'auth.signIn': { en: 'Sign in', ta: 'உள்நுழை' },
+  'auth.chooseRole': { en: 'Choose how to sign in', ta: 'உள்நுழையும் முறையைத் தேர்ந்தெடுக்கவும்' },
+  'auth.demoNote': {
+    en: 'Demo mode — pick any role to explore. No password needed.',
+    ta: 'செயல்விளக்க முறை — எந்தப் பணியையும் தேர்ந்தெடுக்கவும். கடவுச்சொல் தேவையில்லை.',
+  },
+  'auth.email': { en: 'Email', ta: 'மின்னஞ்சல்' },
+  'auth.password': { en: 'Password', ta: 'கடவுச்சொல்' },
+  'auth.signInAs': { en: 'Continue as', ta: 'இவராக தொடர்' },
+
+  // ── Dashboard ────────────────────────────────────────────
+  'dash.title': { en: 'School at a glance', ta: 'பள்ளி நிலை ஒரே பார்வையில்' },
+  'dash.attendanceToday': { en: "Today's attendance", ta: 'இன்றைய வருகை' },
+  'dash.feeCollected': { en: 'Fees collected', ta: 'வசூலான கட்டணம்' },
+  'dash.feePending': { en: 'Fees pending', ta: 'நிலுவைக் கட்டணம்' },
+  'dash.totalStudents': { en: 'Total students', ta: 'மொத்த மாணவர்கள்' },
+  'dash.presentToday': { en: 'present today', ta: 'இன்று வருகை' },
+  'dash.absentToday': { en: 'Absent today', ta: 'இன்று வரவில்லை' },
+  'dash.ofTarget': { en: 'of term target', ta: 'பருவ இலக்கில்' },
+  'dash.lowAttendance': { en: 'Low attendance alerts', ta: 'குறைந்த வருகை எச்சரிக்கை' },
+  'dash.lowAttendanceHelp': {
+    en: 'Students below 75% this term — TN board requires 75% to sit exams',
+    ta: 'இப்பருவத்தில் 75%க்கும் குறைவானோர் — தேர்வெழுத 75% வருகை அவசியம்',
+  },
+  'dash.feeDefaulters': { en: 'Fee follow-up needed', ta: 'கட்டணம் தொடர்பு தேவை' },
+  'dash.upcomingExams': { en: 'Upcoming exams', ta: 'வரவிருக்கும் தேர்வுகள்' },
+  'dash.classwiseAttendance': { en: 'Attendance by class', ta: 'வகுப்பு வாரியாக வருகை' },
+  'dash.recentActivity': { en: 'Recent activity', ta: 'சமீபத்திய செயல்பாடுகள்' },
+  'dash.collectionTrend': { en: 'Fee collection trend', ta: 'கட்டண வசூல் போக்கு' },
+  'dash.sendReminders': { en: 'Send reminders', ta: 'நினைவூட்டல் அனுப்பு' },
+  'dash.notMarkedYet': { en: 'Attendance not marked', ta: 'வருகை பதிவு செய்யப்படவில்லை' },
+  'dash.classesPending': { en: 'classes pending', ta: 'வகுப்புகள் நிலுவையில்' },
+
+  // ── Attendance ───────────────────────────────────────────
+  'att.title': { en: 'Mark attendance', ta: 'வருகை பதிவு செய்' },
+  'att.selectClass': { en: 'Select your class', ta: 'உங்கள் வகுப்பைத் தேர்ந்தெடுக்கவும்' },
+  'att.present': { en: 'Present', ta: 'வருகை' },
+  'att.absent': { en: 'Absent', ta: 'வரவில்லை' },
+  'att.late': { en: 'Late', ta: 'தாமதம்' },
+  'att.markAllPresent': { en: 'Mark all present', ta: 'அனைவரும் வருகை' },
+  'att.submitAttendance': { en: 'Submit attendance', ta: 'வருகையைச் சமர்ப்பி' },
+  'att.submitted': { en: 'Attendance submitted', ta: 'வருகை சமர்ப்பிக்கப்பட்டது' },
+  'att.alreadyMarked': { en: 'Already marked today', ta: 'இன்று ஏற்கனவே பதிவு செய்யப்பட்டது' },
+  'att.parentsNotified': {
+    en: 'Parents of absent students will be notified',
+    ta: 'வராத மாணவர்களின் பெற்றோருக்குத் தகவல் அனுப்பப்படும்',
+  },
+  'att.rollNo': { en: 'Roll', ta: 'எண்' },
+  'att.percentThisTerm': { en: 'This term', ta: 'இப்பருவம்' },
+  'att.offlineNote': {
+    en: 'Saved on this device. Will sync when you are back online.',
+    ta: 'இச்சாதனத்தில் சேமிக்கப்பட்டது. இணையம் வந்ததும் ஒத்திசைக்கப்படும்.',
+  },
+
+  // ── Students ─────────────────────────────────────────────
+  'stu.title': { en: 'Student directory', ta: 'மாணவர் பட்டியல்' },
+  'stu.admissionNo': { en: 'Admission no.', ta: 'சேர்க்கை எண்' },
+  'stu.father': { en: 'Father', ta: 'தந்தை' },
+  'stu.mother': { en: 'Mother', ta: 'தாய்' },
+  'stu.guardianPhone': { en: 'Guardian phone', ta: 'பாதுகாவலர் தொலைபேசி' },
+  'stu.dob': { en: 'Date of birth', ta: 'பிறந்த தேதி' },
+  'stu.bloodGroup': { en: 'Blood group', ta: 'இரத்தப் பிரிவு' },
+  'stu.address': { en: 'Address', ta: 'முகவரி' },
+  'stu.importExcel': { en: 'Import from Excel', ta: 'எக்செல்-ல் இருந்து இறக்குமதி' },
+  'stu.profile': { en: 'Student profile', ta: 'மாணவர் விவரம்' },
+  'stu.attendanceRate': { en: 'Attendance', ta: 'வருகை விகிதம்' },
+  'stu.feeStatus': { en: 'Fee status', ta: 'கட்டண நிலை' },
+
+  // ── Staff ────────────────────────────────────────────────
+  'staff.title': { en: 'Staff directory', ta: 'பணியாளர் பட்டியல்' },
+  'staff.designation': { en: 'Designation', ta: 'பதவி' },
+  'staff.subjects': { en: 'Subjects', ta: 'பாடங்கள்' },
+  'staff.classTeacherOf': { en: 'Class teacher of', ta: 'வகுப்பாசிரியர்' },
+
+  // ── Fees ─────────────────────────────────────────────────
+  'fee.title': { en: 'Fee management', ta: 'கட்டண மேலாண்மை' },
+  'fee.paid': { en: 'Paid', ta: 'செலுத்தப்பட்டது' },
+  'fee.pending': { en: 'Pending', ta: 'நிலுவை' },
+  'fee.partial': { en: 'Partial', ta: 'பகுதி' },
+  'fee.overdue': { en: 'Overdue', ta: 'காலம் கடந்தது' },
+  'fee.term': { en: 'Term', ta: 'பருவம்' },
+  'fee.dueDate': { en: 'Due date', ta: 'கடைசி தேதி' },
+  'fee.collectPayment': { en: 'Record payment', ta: 'பணம் பதிவு' },
+  'fee.receipt': { en: 'Receipt', ta: 'ரசீது' },
+  'fee.sendReminder': { en: 'Send reminder', ta: 'நினைவூட்டல் அனுப்பு' },
+  'fee.remindPending': { en: 'Remind all pending families', ta: 'நிலுவையுள்ள அனைவருக்கும் நினைவூட்டு' },
+  'fee.collectionRate': { en: 'Collection rate', ta: 'வசூல் விகிதம்' },
+  'fee.outstanding': { en: 'Outstanding', ta: 'நிலுவைத் தொகை' },
+  'fee.remindersSent': { en: 'Reminders sent to {n} families', ta: '{n} குடும்பங்களுக்கு நினைவூட்டல் அனுப்பப்பட்டது' },
+
+  // ── Exams ────────────────────────────────────────────────
+  'exam.title': { en: 'Exams & marks', ta: 'தேர்வுகள் & மதிப்பெண்கள்' },
+  'exam.examination': { en: 'Examination', ta: 'தேர்வு' },
+  'exam.enterMarks': { en: 'Enter marks', ta: 'மதிப்பெண் பதிவு' },
+  'exam.subject': { en: 'Subject', ta: 'பாடம்' },
+  'exam.maxMarks': { en: 'Max marks', ta: 'அதிகபட்ச மதிப்பெண்' },
+  'exam.marksObtained': { en: 'Marks', ta: 'மதிப்பெண்' },
+  'exam.grade': { en: 'Grade', ta: 'தரம்' },
+  'exam.rank': { en: 'Rank', ta: 'தரவரிசை' },
+  'exam.classAverage': { en: 'Class average', ta: 'வகுப்புச் சராசரி' },
+  'exam.passPercent': { en: 'Pass %', ta: 'தேர்ச்சி %' },
+  'exam.generateReportCard': { en: 'Generate report card', ta: 'மதிப்பெண் அட்டை உருவாக்கு' },
+  'exam.absent': { en: 'AB', ta: 'வ.இ' },
+
+  // ── Report card ──────────────────────────────────────────
+  'rc.title': { en: 'Report Card', ta: 'மதிப்பெண் அட்டை' },
+  'rc.progressReport': { en: 'Progress Report', ta: 'முன்னேற்ற அறிக்கை' },
+  'rc.academicYear': { en: 'Academic Year', ta: 'கல்வியாண்டு' },
+  'rc.totalMarks': { en: 'Total', ta: 'மொத்தம்' },
+  'rc.percentage': { en: 'Percentage', ta: 'சதவீதம்' },
+  'rc.result': { en: 'Result', ta: 'முடிவு' },
+  'rc.pass': { en: 'PASS', ta: 'தேர்ச்சி' },
+  'rc.fail': { en: 'FAIL', ta: 'தேர்ச்சியில்லை' },
+  'rc.remarks': { en: 'Class teacher remarks', ta: 'வகுப்பாசிரியர் கருத்து' },
+  'rc.signature': { en: 'Signature', ta: 'கையொப்பம' },
+  'rc.classTeacher': { en: 'Class Teacher', ta: 'வகுப்பாசிரியர்' },
+  'rc.principalSign': { en: 'Principal', ta: 'தலைமையாசிரியர்' },
+  'rc.parentSign': { en: 'Parent', ta: 'பெற்றோர்' },
+  'rc.daysPresent': { en: 'Days present', ta: 'வருகை நாட்கள்' },
+  'rc.workingDays': { en: 'Working days', ta: 'வேலை நாட்கள்' },
+
+  // ── Communication ────────────────────────────────────────
+  'msg.title': { en: 'Parent messages', ta: 'பெற்றோர் செய்திகள்' },
+  'msg.compose': { en: 'New announcement', ta: 'புதிய அறிவிப்பு' },
+  'msg.subjectLine': { en: 'Subject', ta: 'தலைப்பு' },
+  'msg.body': { en: 'Message', ta: 'செய்தி' },
+  'msg.audience': { en: 'Send to', ta: 'யாருக்கு' },
+  'msg.allParents': { en: 'All parents', ta: 'அனைத்துப் பெற்றோர்' },
+  'msg.byClass': { en: 'Specific class', ta: 'குறிப்பிட்ட வகுப்பு' },
+  'msg.sent': { en: 'Sent', ta: 'அனுப்பப்பட்டது' },
+  'msg.delivered': { en: 'delivered', ta: 'சேர்ந்தது' },
+  'msg.read': { en: 'read', ta: 'படித்தது' },
+  'msg.recipients': { en: 'recipients', ta: 'பெறுநர்கள்' },
+  'msg.whatsappNote': {
+    en: 'Also delivered to parents on WhatsApp',
+    ta: 'பெற்றோருக்கு வாட்ஸ்அப்பிலும் அனுப்பப்படும்',
+  },
+  'msg.channelPortal': { en: 'Parent app', ta: 'பெற்றோர் செயலி' },
+  'msg.channelWhatsapp': { en: 'WhatsApp', ta: 'வாட்ஸ்அப்' },
+  'msg.channelSms': { en: 'SMS', ta: 'குறுஞ்செய்தி' },
+
+  // ── Parent portal ────────────────────────────────────────
+  'par.greeting': { en: 'Hello', ta: 'வணக்கம்' },
+  'par.attendanceSummary': { en: 'Attendance this term', ta: 'இப்பருவ வருகை' },
+  'par.feeDue': { en: 'Fee due', ta: 'செலுத்த வேண்டிய கட்டணம்' },
+  'par.latestMarks': { en: 'Latest exam results', ta: 'சமீபத்திய தேர்வு முடிவுகள்' },
+  'par.announcements': { en: 'School announcements', ta: 'பள்ளி அறிவிப்புகள்' },
+  'par.payNow': { en: 'Pay now', ta: 'இப்போது செலுத்து' },
+  'par.viewReportCard': { en: 'View report card', ta: 'மதிப்பெண் அட்டையைக் காண்க' },
+  'par.noDues': { en: 'No dues. Thank you!', ta: 'நிலுவை இல்லை. நன்றி!' },
+
+  // ── Settings ─────────────────────────────────────────────
+  'set.title': { en: 'Settings', ta: 'அமைப்புகள்' },
+  'set.language': { en: 'Language', ta: 'மொழி' },
+  'set.theme': { en: 'Appearance', ta: 'தோற்றம்' },
+  'set.themeLight': { en: 'Light', ta: 'வெளிச்சம்' },
+  'set.themeDark': { en: 'Dark', ta: 'இருள்' },
+  'set.schoolProfile': { en: 'School profile', ta: 'பள்ளி விவரம்' },
+  'set.dataMode': { en: 'Data source', ta: 'தரவு மூலம்' },
+  'set.installApp': { en: 'Install app', ta: 'செயலியை நிறுவு' },
+  'set.installHelp': {
+    en: 'Add to your home screen for one-tap access',
+    ta: 'ஒரே தட்டலில் திறக்க முகப்புத் திரையில் சேர்க்கவும்',
+  },
+} as const
+
+export type TranslationKey = keyof typeof dict
+
+export function translate(key: TranslationKey, locale: Locale): string {
+  const entry = dict[key]
+  if (!entry) return key
+  return entry[locale] ?? entry.en
+}
+
+export default dict

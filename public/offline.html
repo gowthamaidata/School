@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Offline · Palli</title>
+    <style>
+      :root { color-scheme: light dark; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: #f7f7f5;
+        color: #16241a;
+        font: 15px/1.7 'Inter', system-ui, -apple-system, sans-serif;
+        text-align: center;
+      }
+      @media (prefers-color-scheme: dark) {
+        body { background: #0d1410; color: #e4ede6; }
+        .card { background: #141d17 !important; border-color: #253328 !important; }
+        .hint { color: #a7bcad !important; }
+      }
+      .card {
+        max-width: 380px;
+        background: #fff;
+        border: 1px solid #dde3dc;
+        border-radius: 10px;
+        padding: 32px 28px;
+      }
+      .mark {
+        width: 52px; height: 52px;
+        margin: 0 auto 18px;
+        display: grid; place-items: center;
+        background: #1a3c2b;
+        border-radius: 8px;
+        color: #f7f7f5;
+        font: 700 18px Georgia, serif;
+      }
+      h1 { font: 700 20px Georgia, serif; margin-bottom: 8px; }
+      .hint { font-size: 14px; color: #46584b; margin-bottom: 20px; }
+      .tamil { font-size: 13px; opacity: .75; margin-top: 6px; }
+      button {
+        background: #1a3c2b; color: #fff; border: 0;
+        border-radius: 6px; padding: 11px 22px;
+        font: 600 14px inherit; cursor: pointer;
+      }
+      button:hover { background: #2a6244; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="mark">TN</div>
+      <h1>You are offline</h1>
+      <p class="hint">
+        Palli could not reach the network. Attendance you marked on this device
+        is saved and will sync as soon as you are back online.
+        <span class="tamil"
+          >இணையம் இல்லை. நீங்கள் பதிவு செய்த வருகை இச்சாதனத்தில் சேமிக்கப்பட்டுள்ளது —
+          இணைப்பு வந்ததும் தானாக ஒத்திசைக்கப்படும்.</span
+        >
+      </p>
+      <button onclick="location.reload()">Try again</button>
+    </div>
+  </body>
+</html>
