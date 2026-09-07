@@ -31,8 +31,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#1a3c2b' },
-    { media: '(prefers-color-scheme: dark)', color: '#0d1410' },
+    { media: '(prefers-color-scheme: light)', color: '#fdfaf4' },
+    { media: '(prefers-color-scheme: dark)', color: '#1e1b2a' },
   ],
   width: 'device-width',
   initialScale: 1,
@@ -46,12 +46,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* Noto Sans Tamil carries the Tamil UI; Lora / Inter / JetBrains Mono are
+        {/* Noto Sans Tamil carries the Tamil UI; Quicksand/Nunito are the rounded
+            UI fonts and JetBrains Mono is for compact data labels.
             the design system. Loaded by link rather than next/font so the build
             never depends on reaching Google at compile time. */}
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:wght@600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Tamil:wght@400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Quicksand:wght@500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Tamil:wght@400;500;600;700&display=swap"
         />
         {/* Apply stored theme before paint so there is no light flash on a dark device. */}
         <script

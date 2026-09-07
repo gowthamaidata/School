@@ -9,7 +9,7 @@ import { repo } from '@/lib/data/repository'
 import type { AttendanceStatus, ClassSection, Student } from '@/lib/data/types'
 import { formatDate, todayISO } from '@/lib/utils'
 import {
-  Badge, Button, Card, CardHeader, PageHeader, Select, Skeleton, Toast,
+  Badge, Button, Card, CardHeader, ConfirmDialog, PageHeader, Select, Skeleton, Toast,
 } from '@/components/ui'
 
 type Marks = Record<string, AttendanceStatus>
@@ -29,6 +29,7 @@ export default function AttendancePage() {
   const [alreadyMarked, setAlreadyMarked] = useState(false)
   const [toast, setToast] = useState<{ msg: string; tone?: 'forest' | 'clay' } | null>(null)
   const [online, setOnline] = useState(true)
+  const [confirmAllOpen, setConfirmAllOpen] = useState(false)
 
   // Live stopwatch — starts on first tap, so the demo can show the real number.
   // `startedAt` is a ref (it must not itself trigger renders), but whether the
@@ -152,7 +153,13 @@ export default function AttendancePage() {
         q.push({ sectionId, date, entries, markedBy: user.id })
         localStorage.setItem(QUEUE_KEY, JSON.stringify(q))
       } catch {
-        /* storage full or blocked — the submit below still runs when back online */
+        setToast({
+          msg:
+            locale === 'ta'
+              ? 'ஆஃப்லைன் சேமிப்பில் சிக்கல். இணையம் திரும்பும் போது மீண்டும் சமர்ப்பிக்கவும்.'
+              : 'Offline save failed. Please submit again when internet is back.',
+          tone: 'clay',
+        })
       }
       setSaving(false)
       setAlreadyMarked(true)
@@ -198,8 +205,10 @@ export default function AttendancePage() {
       <Card className="mb-4">
         <div className="flex flex-col gap-3 p-3.5 sm:flex-row sm:items-end">
           <div className="sm:w-56">
-            <span className="label-mono mb-1.5 block">{t('att.selectClass')}</span>
-            <Select value={sectionId} onChange={(e) => setSectionId(e.target.value)}>
+            <label htmlFor="attendance-section" className="label-mono mb-1.5 block">
+              {t('att.selectClass')}
+            </label>
+            <Select id="attendance-section" value={sectionId} onChange={(e) => setSectionId(e.target.value)}>
               {sections.map((s) => (
                 <option key={s.id} value={s.id}>
                   {t('common.class')} {s.label} · {s.strength}{' '}
@@ -224,7 +233,7 @@ export default function AttendancePage() {
             </Badge>
 
             {timing && (
-              <span className="tabular ml-auto flex items-center gap-1.5 rounded bg-forest-dim px-2 py-1 font-mono text-xs font-semibold text-forest">
+              <span className="tabular ml-auto flex items-center gap-1.5 rounded-pill bg-forest-dim px-2 py-1 font-mono text-xs font-semibold text-forest">
                 <Clock3 size={13} />
                 {seconds}s
               </span>
@@ -236,7 +245,7 @@ export default function AttendancePage() {
             )}
           </div>
 
-          <Button variant="outline" size="sm" onClick={markAllPresent} disabled={loading}>
+          <Button variant="outline" size="sm" onClick={() => setConfirmAllOpen(true)} disabled={loading}>
             <CheckCheck size={15} />
             {t('att.markAllPresent')}
           </Button>
@@ -244,7 +253,7 @@ export default function AttendancePage() {
 
         {alreadyMarked && (
           <div className="flex items-center gap-2 border-t border-line bg-forest-dim px-3.5 py-2 text-xs text-forest">
-            <Check size={14} />
+            <Check size={14} className="animate-bounce-check" />
             {t('att.alreadyMarked')}
             {finalTime !== null && (
               <span className="tabular ml-auto font-mono font-semibold">
@@ -337,7 +346,7 @@ export default function AttendancePage() {
       </Card>
 
       {/* ── Sticky submit bar ───────────────────────────── */}
-      <div className="no-print fixed inset-x-0 bottom-14 z-20 border-t border-line bg-surface px-4 py-2.5 shadow-lift lg:bottom-0 lg:left-60">
+      <div className="no-print glass fixed inset-x-0 bottom-14 z-20 border-t border-line bg-surface/95 px-4 py-2.5 shadow-lift lg:bottom-0 lg:left-64">
         <div className="mx-auto flex max-w-6xl items-center gap-3">
           <div className="min-w-0 flex-1">
             <div className="text-xs font-medium text-ink">
@@ -359,6 +368,24 @@ export default function AttendancePage() {
           </Button>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmAllOpen}
+        onClose={() => setConfirmAllOpen(false)}
+        onConfirm={() => {
+          markAllPresent()
+          setConfirmAllOpen(false)
+        }}
+        title={t('common.areYouSure')}
+        description={
+          locale === 'ta'
+            ? 'இது அனைவரையும் வருகை என குறிக்கும். முந்தைய குறிகள் மாற்றப்படலாம்.'
+            : 'This will mark every student present and may overwrite existing marks.'
+        }
+        confirmLabel={t('common.confirm')}
+        cancelLabel={t('common.cancel')}
+        tone="primary"
+      />
 
       {toast && (
         <Toast message={toast.msg} tone={toast.tone ?? 'forest'} onDismiss={() => setToast(null)} />

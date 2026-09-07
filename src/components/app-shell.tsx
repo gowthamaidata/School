@@ -71,10 +71,10 @@ function NavLinks({
             key={item.href}
             href={item.href}
             className={cn(
-              'flex items-center gap-2.5 rounded px-3 py-2 text-sm transition-colors ring-focus',
+              'flex items-center gap-2.5 rounded-md px-3 py-2.5 text-sm transition-all ring-focus',
               active
-                ? 'bg-forest-dim font-semibold text-forest'
-                : 'text-ink-2 hover:bg-surface-2 hover:text-ink',
+                ? 'bg-forest-dim font-semibold text-forest shadow-card'
+                : 'text-ink-2 hover:-translate-y-0.5 hover:bg-surface-2 hover:text-ink',
             )}
           >
             <Icon size={17} className="shrink-0" />
@@ -143,11 +143,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Brand */}
       <div className="border-b border-line px-4 py-4">
         <div className="flex items-center gap-2.5">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-forest font-serif text-sm font-bold text-white">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-forest font-display text-sm font-bold text-white shadow-card">
             {SCHOOL.logo_text}
           </span>
           <div className="min-w-0">
-            <div className="truncate font-serif text-[15px] font-bold leading-tight text-ink">
+            <div className="truncate font-display text-[15px] font-bold leading-tight text-ink">
               {t('app.name')}
             </div>
             <div className="label-mono truncate">{SCHOOL.city}</div>
@@ -170,30 +170,33 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="mb-2 flex gap-1 px-1">
           <button
             onClick={() => setLocale(locale === 'en' ? 'ta' : 'en')}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded px-2 py-1.5 text-xs font-medium text-ink-2 ring-focus hover:bg-surface-2 hover:text-ink"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-pill px-2 py-1.5 text-xs font-medium text-ink-2 ring-focus transition-all hover:-translate-y-0.5 hover:bg-surface-2 hover:text-ink"
             title={t('set.language')}
+            aria-label={t('set.language')}
           >
             <Languages size={14} />
             {locale === 'en' ? 'தமிழ்' : 'EN'}
           </button>
           <button
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded px-2 py-1.5 text-xs font-medium text-ink-2 ring-focus hover:bg-surface-2 hover:text-ink"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-pill px-2 py-1.5 text-xs font-medium text-ink-2 ring-focus transition-all hover:-translate-y-0.5 hover:bg-surface-2 hover:text-ink"
             title={t('set.theme')}
+            aria-label={t('set.theme')}
           >
             {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
             {theme === 'dark' ? t('set.themeLight') : t('set.themeDark')}
           </button>
           <Link
             href="/settings"
-            className="flex items-center justify-center rounded px-2 py-1.5 text-ink-2 ring-focus hover:bg-surface-2 hover:text-ink"
+            className="flex items-center justify-center rounded-pill px-2 py-1.5 text-ink-2 ring-focus transition-all hover:-translate-y-0.5 hover:bg-surface-2 hover:text-ink"
             title={t('set.title')}
+            aria-label={t('set.title')}
           >
             <Settings size={14} />
           </Link>
         </div>
 
-        <div className="flex items-center gap-2 rounded bg-surface-2 px-2.5 py-2">
+        <div className="flex items-center gap-2 rounded-md bg-surface-2 px-2.5 py-2">
           <Avatar name={user.name} size={30} />
           <div className="min-w-0 flex-1">
             <div className="truncate text-[13px] font-semibold leading-tight text-ink">
@@ -203,7 +206,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
           <button
             onClick={signOut}
-            className="rounded p-1.5 text-ink-3 ring-focus hover:bg-line hover:text-danger"
+            className="rounded-pill p-1.5 text-ink-3 ring-focus transition-all hover:-translate-y-0.5 hover:bg-line hover:text-danger"
             title={t('nav.signOut')}
             aria-label={t('nav.signOut')}
           >
@@ -217,7 +220,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative z-10 flex min-h-screen">
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r border-line bg-surface lg:flex">
+      <aside className="glass fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-line bg-surface/90 lg:flex">
         {Sidebar}
       </aside>
 
@@ -229,10 +232,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             onClick={() => setMobileOpen(false)}
             aria-hidden
           />
-          <aside className="animate-slide-in absolute inset-y-0 left-0 flex w-64 flex-col border-r border-line bg-surface">
+          <aside className="glass animate-slide-in absolute inset-y-0 left-0 flex w-72 max-w-[90vw] flex-col border-r border-line bg-surface/90">
             <button
               onClick={() => setMobileOpen(false)}
-              className="absolute right-2 top-3 rounded p-1.5 text-ink-3 hover:bg-surface-2"
+              className="absolute right-2 top-3 rounded-pill p-1.5 text-ink-3 ring-focus hover:bg-surface-2"
               aria-label={t('common.close')}
             >
               <X size={18} />
@@ -243,26 +246,27 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       )}
 
       {/* Main column */}
-      <div className="flex min-w-0 flex-1 flex-col lg:ml-60">
+      <div className="flex min-w-0 flex-1 flex-col lg:ml-64">
         {/* Mobile top bar */}
-        <header className="app-header sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-line bg-surface px-4 lg:hidden">
+        <header className="app-header glass sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-line bg-surface/90 px-4 lg:hidden">
           <button
             onClick={() => setMobileOpen(true)}
-            className="rounded p-1.5 text-ink-2 ring-focus hover:bg-surface-2"
+            className="rounded-pill p-1.5 text-ink-2 ring-focus transition-all hover:-translate-y-0.5 hover:bg-surface-2"
             aria-label="Open menu"
           >
             <Menu size={20} />
           </button>
-          <span className="flex h-7 w-7 items-center justify-center rounded bg-forest font-serif text-xs font-bold text-white">
+          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-forest font-display text-xs font-bold text-white">
             {SCHOOL.logo_text}
           </span>
-          <span className="truncate font-serif text-base font-bold text-ink">
+          <span className="truncate font-display text-base font-bold text-ink">
             {t('app.name')}
           </span>
           <div className="ml-auto flex items-center gap-1">
             <button
               onClick={() => setLocale(locale === 'en' ? 'ta' : 'en')}
-              className="rounded px-2 py-1 text-xs font-semibold text-ink-2 ring-focus hover:bg-surface-2"
+              className="rounded-pill px-2 py-1 text-xs font-semibold text-ink-2 ring-focus transition-all hover:-translate-y-0.5 hover:bg-surface-2"
+              aria-label={t('set.language')}
             >
               {locale === 'en' ? 'தமிழ்' : 'EN'}
             </button>
@@ -271,11 +275,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </header>
 
         <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-5 pb-24 sm:px-6 lg:py-8 lg:pb-10">
-          {children}
+          <div key={pathname} className="animate-fade-up">
+            {children}
+          </div>
         </main>
 
         {/* Mobile bottom tab bar — thumb-reachable, the way teachers actually hold a phone */}
-        <nav className="no-print fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-surface lg:hidden">
+        <nav className="no-print glass fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-surface/95 lg:hidden">
           {items.slice(0, 5).map((item) => {
             const active = pathname === item.href || pathname.startsWith(item.href + '/')
             const Icon = item.icon

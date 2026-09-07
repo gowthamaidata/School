@@ -12,7 +12,7 @@ import type {
 } from '@/lib/data/types'
 import { formatDate, formatINR, gradeFor, ordinal, todayISO } from '@/lib/utils'
 import {
-  Badge, Button, Card, CardHeader, Empty, PageHeader, Progress, Skeleton, Stat,
+  Badge, Button, Card, CardHeader, Empty, Modal, PageHeader, Progress, Skeleton, Stat,
 } from '@/components/ui'
 
 type Report = NonNullable<Awaited<ReturnType<typeof repo.getReportCard>>>
@@ -30,6 +30,7 @@ export default function ParentPage() {
   const [news, setNews] = useState<Announcement[]>([])
   const [homework, setHomework] = useState<Homework[]>([])
   const [loading, setLoading] = useState(true)
+  const [payOpen, setPayOpen] = useState(false)
 
   useEffect(() => {
     if (!user?.student_id) return
@@ -165,9 +166,39 @@ export default function ParentPage() {
                 : ''}
             </div>
           </div>
-          <Button size="sm">{t('par.payNow')}</Button>
+          <Button size="sm" onClick={() => setPayOpen(true)}>
+            {t('par.payNow')}
+          </Button>
         </Card>
       )}
+
+      <Modal
+        open={payOpen}
+        onClose={() => setPayOpen(false)}
+        title={t('par.payNow')}
+        footer={
+          <Button variant="secondary" onClick={() => setPayOpen(false)}>
+            {t('common.close')}
+          </Button>
+        }
+      >
+        <div className="space-y-3 text-sm text-ink-2">
+          <p>
+            {locale === 'ta'
+              ? 'ஆன்லைன் கட்டண செலுத்தல் விரைவில் வழங்கப்படும். தற்போது, தயவுசெய்து பள்ளி அலுவலகத்தை தொடர்பு கொள்ளவும்:'
+              : 'Online payment is coming soon. For now, please contact the school office to settle this due:'}
+          </p>
+          <div className="rounded-md bg-surface-2 p-3">
+            <div className="font-semibold text-ink">{locale === 'ta' ? SCHOOL.name_ta : SCHOOL.name}</div>
+            <div className="mt-1 text-ink-2">{SCHOOL.phone}</div>
+          </div>
+          {nextDue && (
+            <p className="text-xs text-ink-3">
+              {t('fee.dueDate')}: {formatDate(nextDue.due_date, 'long')} · {formatINR(outstanding)}
+            </p>
+          )}
+        </div>
+      </Modal>
 
       {/* ── Homework — the reason a parent opens this daily ── */}
       <Card className="mt-4">

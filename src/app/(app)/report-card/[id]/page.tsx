@@ -27,9 +27,11 @@ function ReportCardInner() {
     repo.getExams().then((e) => {
       const published = e.filter((x) => x.published)
       setExams(published)
-      if (!examId && published[0]) setExamId(published[0].id)
+      setExamId((current) => current || published[0]?.id || '')
     })
-  }, [examId])
+    // Runs once on mount only — this loads the exam list, it must not
+    // re-run every time the user picks a different exam in the dropdown.
+  }, [])
 
   useEffect(() => {
     if (!examId) return
@@ -94,8 +96,8 @@ function ReportCardInner() {
           </div>
           <div className="flex items-end gap-2">
             <div className="w-52">
-              <span className="label-mono mb-1.5 block">{t('exam.examination')}</span>
-              <Select value={examId} onChange={(e) => setExamId(e.target.value)}>
+              <label htmlFor="report-exam" className="label-mono mb-1.5 block">{t('exam.examination')}</label>
+              <Select id="report-exam" value={examId} onChange={(e) => setExamId(e.target.value)}>
                 {exams.map((e) => (
                   <option key={e.id} value={e.id}>
                     {locale === 'ta' ? e.name_ta : e.name}

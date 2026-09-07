@@ -119,6 +119,22 @@ export default function ExamsPage() {
     await load()
   }
 
+  function normalizeMarksInput(studentId: string) {
+    const raw = (draft[studentId] ?? '').trim()
+    if (!raw || raw.toUpperCase() === 'AB') return
+    const n = Number(raw)
+    if (Number.isNaN(n)) return
+    const clamped = String(Math.min(maxMarks, Math.max(0, n)))
+    if (clamped !== raw) {
+      setDraft((d) => ({ ...d, [studentId]: clamped }))
+      setToast(
+        locale === 'ta'
+          ? `மதிப்பெண் 0 முதல் ${maxMarks} வரை இருக்க வேண்டும்.`
+          : `Marks must be between 0 and ${maxMarks}.`,
+      )
+    }
+  }
+
   return (
     <>
       <PageHeader
@@ -135,8 +151,8 @@ export default function ExamsPage() {
       <Card className="mb-4">
         <div className="grid gap-2.5 p-3.5 sm:grid-cols-3">
           <div>
-            <span className="label-mono mb-1.5 block">{t('exam.examination')}</span>
-            <Select value={examId} onChange={(e) => setExamId(e.target.value)}>
+            <label htmlFor="exam-picker" className="label-mono mb-1.5 block">{t('exam.examination')}</label>
+            <Select id="exam-picker" value={examId} onChange={(e) => setExamId(e.target.value)}>
               {exams.map((e) => (
                 <option key={e.id} value={e.id}>
                   {locale === 'ta' ? e.name_ta : e.name}
@@ -146,8 +162,8 @@ export default function ExamsPage() {
             </Select>
           </div>
           <div>
-            <span className="label-mono mb-1.5 block">{t('common.class')}</span>
-            <Select value={sectionId} onChange={(e) => setSectionId(e.target.value)}>
+            <label htmlFor="exam-section" className="label-mono mb-1.5 block">{t('common.class')}</label>
+            <Select id="exam-section" value={sectionId} onChange={(e) => setSectionId(e.target.value)}>
               {sections.map((s) => (
                 <option key={s.id} value={s.id}>
                   {t('common.class')} {s.label}
@@ -156,8 +172,8 @@ export default function ExamsPage() {
             </Select>
           </div>
           <div>
-            <span className="label-mono mb-1.5 block">{t('exam.subject')}</span>
-            <Select value={subjectId} onChange={(e) => setSubjectId(e.target.value)}>
+            <label htmlFor="exam-subject" className="label-mono mb-1.5 block">{t('exam.subject')}</label>
+            <Select id="exam-subject" value={subjectId} onChange={(e) => setSubjectId(e.target.value)}>
               {subjects.map((s) => (
                 <option key={s.id} value={s.id}>
                   {locale === 'ta' ? s.name_ta : s.name}
@@ -257,6 +273,7 @@ export default function ExamsPage() {
                         onChange={(e) =>
                           setDraft((d) => ({ ...d, [s.id]: e.target.value }))
                         }
+                        onBlur={() => normalizeMarksInput(s.id)}
                         inputMode="numeric"
                         maxLength={3}
                         placeholder="—"

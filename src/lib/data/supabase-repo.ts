@@ -538,7 +538,7 @@ export const supabaseRepo = {
   /* ── Dashboard ───────────────────────────────────────── */
   async getDashboardStats(date = todayISO()): Promise<DashboardStats> {
     const school = await this.getSchool()
-    const currentTerm = 1
+    const currentTerm = Number(process.env.NEXT_PUBLIC_CURRENT_TERM ?? '1') || 1
 
     const [studentCount, todayRows, feeRows, sections, lowRows] = await Promise.all([
       sb().from('students').select('id', { count: 'exact', head: true }).eq('active', true),

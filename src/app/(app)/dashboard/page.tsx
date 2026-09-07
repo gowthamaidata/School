@@ -15,7 +15,7 @@ import type {
 } from '@/lib/data/types'
 import { formatDate, formatINR, formatNumber } from '@/lib/utils'
 import {
-  Badge, Button, Card, CardHeader, Empty, PageHeader, Progress, Skeleton, Stat, Toast,
+  Badge, Button, Card, CardHeader, CountUp, Empty, PageHeader, Progress, ProgressRing, Skeleton, Stat, Toast,
 } from '@/components/ui'
 
 type LowRow = { student: Student; summary: AttendanceSummary; section: ClassSection }
@@ -81,9 +81,13 @@ export default function DashboardPage() {
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <Stat
             label={t('dash.attendanceToday')}
-            value={`${stats.attendance_pct}%`}
+            value={
+              <span>
+                <CountUp value={stats.attendance_pct} />%
+              </span>
+            }
             tone={stats.attendance_pct >= 90 ? 'forest' : stats.attendance_pct >= 80 ? 'clay' : 'danger'}
-            icon={<CalendarCheck2 size={16} />}
+            icon={<ProgressRing value={stats.attendance_pct} size={36} stroke={5} tone={stats.attendance_pct >= 90 ? 'forest' : stats.attendance_pct >= 80 ? 'clay' : 'danger'} />}
             sub={
               <span className="tabular">
                 {formatNumber(stats.present_today)} {t('dash.presentToday')} ·{' '}
@@ -120,7 +124,7 @@ export default function DashboardPage() {
           />
           <Stat
             label={t('dash.totalStudents')}
-            value={formatNumber(stats.total_students)}
+            value={<CountUp value={stats.total_students} />}
             tone="info"
             icon={<Users size={16} />}
             sub={
@@ -201,7 +205,7 @@ export default function DashboardPage() {
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
+              <div className="stagger-in grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
                 {classRows.map((c) => (
                   <div
                     key={c.section_id}
@@ -309,7 +313,7 @@ export default function DashboardPage() {
             {trend.length === 0 ? (
               <Skeleton className="h-40" />
             ) : (
-              <div className="flex h-44 items-stretch gap-3">
+              <div className="stagger-in flex h-44 items-stretch gap-3">
                 {trend.map((d) => (
                   <div
                     key={d.month}
@@ -349,7 +353,8 @@ export default function DashboardPage() {
             }
           />
           <div>
-            {news.map((a) => (
+            <div className="stagger-in">
+              {news.map((a) => (
               <div key={a.id} className="border-b border-line px-4 py-3 last:border-0">
                 <div className="text-[13px] font-semibold leading-snug text-ink">{a.title}</div>
                 <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-2xs text-ink-3">
@@ -363,7 +368,8 @@ export default function DashboardPage() {
                   )}
                 </div>
               </div>
-            ))}
+              ))}
+            </div>
           </div>
         </Card>
       </div>

@@ -73,16 +73,18 @@ export default function FeesPage() {
   async function submitPayment() {
     if (!payRow) return
     const amount = Number(payAmount)
-    if (!amount || amount <= 0) return
+    if (!amount || amount <= 0) {
+      setToast(locale === 'ta' ? 'செல்லுபடியாகும் தொகையை உள்ளிடவும்.' : 'Enter a valid payment amount.')
+      return
+    }
     setBusy(true)
     await repo.recordPayment({ feeId: payRow.record.id, amount, method: payMethod })
     setBusy(false)
-    const updated = { ...payRow }
     setPayRow(null)
     setPayAmount('')
     setToast(
       `${t('common.saved')} · ${formatINR(amount)} — ${
-        locale === 'ta' ? updated.student.name_ta : updated.student.name
+        locale === 'ta' ? payRow.student.name_ta : payRow.student.name
       }`,
     )
     await load()
@@ -165,25 +167,26 @@ export default function FeesPage() {
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              aria-label={t('common.search')}
               placeholder={
                 locale === 'ta' ? 'பெயர் / சேர்க்கை எண் / தொலைபேசி' : 'Name, admission no. or phone'
               }
               className="pl-9"
             />
           </div>
-          <Select value={term} onChange={(e) => setTerm(Number(e.target.value))}>
+          <Select value={term} onChange={(e) => setTerm(Number(e.target.value))} aria-label={t('fee.term')}>
             {[1, 2, 3].map((n) => (
               <option key={n} value={n}>
                 {t('fee.term')} {n}
               </option>
             ))}
           </Select>
-          <Select value={status} onChange={(e) => setStatus(e.target.value as typeof status)}>
+          <Select value={status} onChange={(e) => setStatus(e.target.value as typeof status)} aria-label={t('common.status')}>
             <option value="all">{t('common.all')}</option>
             <option value="unpaid">{t('fee.pending')}</option>
             <option value="paid">{t('fee.paid')}</option>
           </Select>
-          <Select value={sectionId} onChange={(e) => setSectionId(e.target.value)}>
+          <Select value={sectionId} onChange={(e) => setSectionId(e.target.value)} aria-label={t('att.selectClass')}>
             <option value="">{t('common.all')} — {t('common.class')}</option>
             {sections.map((s) => (
               <option key={s.id} value={s.id}>
@@ -264,7 +267,7 @@ export default function FeesPage() {
                         </Button>
                       )}
                       {r.record.amount_paid > 0 && (
-                        <Button size="sm" variant="ghost" onClick={() => setReceipt(r)}>
+                        <Button size="sm" variant="ghost" onClick={() => setReceipt(r)} aria-label={t('fee.receipt')}>
                           <Printer size={14} />
                         </Button>
                       )}

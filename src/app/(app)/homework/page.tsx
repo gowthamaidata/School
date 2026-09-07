@@ -9,7 +9,7 @@ import { repo, SECTIONS, staffById, subjectById, subjectsForStandard } from '@/l
 import type { Homework, HomeworkCoverageRow } from '@/lib/data/types'
 import { formatDate, todayISO } from '@/lib/utils'
 import {
-  Badge, Button, Card, CardHeader, Empty, Field, Input, PageHeader,
+  Badge, Button, Card, CardHeader, ConfirmDialog, Empty, Field, Input, PageHeader,
   Select, Skeleton, Textarea, Toast,
 } from '@/components/ui'
 
@@ -51,6 +51,7 @@ export default function HomeworkPage() {
   const [dueOn, setDueOn] = useState(tomorrowISO())
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
+  const [deleteId, setDeleteId] = useState<string | null>(null)
 
   // Default to the first section this user is allowed to post for.
   useEffect(() => {
@@ -164,14 +165,14 @@ export default function HomeworkPage() {
         </Card>
       )}
 
-      <div className="grid gap-4 lg:grid-cols-[380px_1fr]">
+      <div className="grid gap-4 lg:grid-cols-[minmax(320px,380px)_1fr]">
         {/* ── Composer ─────────────────────────────────── */}
         <Card className="h-fit lg:sticky lg:top-6">
           <CardHeader title={t('hw.assign')} hint={t('hw.parentsNotified')} />
           <div className="space-y-3.5 p-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid gap-3 sm:grid-cols-2">
               <Field label={t('hw.selectClass')}>
-                <Select value={sectionId} onChange={(e) => setSectionId(e.target.value)}>
+                <Select value={sectionId} onChange={(e) => setSectionId(e.target.value)} aria-label={t('hw.selectClass')}>
                   {mySections.map((s) => (
                     <option key={s.id} value={s.id}>
                       {t('common.class')} {s.label}
@@ -181,7 +182,7 @@ export default function HomeworkPage() {
               </Field>
 
               <Field label={t('hw.subject')}>
-                <Select value={subjectId} onChange={(e) => setSubjectId(e.target.value)}>
+                <Select value={subjectId} onChange={(e) => setSubjectId(e.target.value)} aria-label={t('hw.subject')}>
                   {subjects.map((s) => (
                     <option key={s.id} value={s.id}>
                       {locale === 'ta' ? s.name_ta : s.name}
@@ -240,7 +241,7 @@ export default function HomeworkPage() {
             ) : (
               <div className="divide-y divide-line">
                 {todaysItems.map((h) => (
-                  <HomeworkRow key={h.id} hw={h} onDelete={() => remove(h.id)} />
+                  <HomeworkRow key={h.id} hw={h} onDelete={() => setDeleteId(h.id)} />
                 ))}
               </div>
             )}
@@ -251,7 +252,7 @@ export default function HomeworkPage() {
               <CardHeader title={t('hw.recent')} action={<Badge tone="neutral">{earlier.length}</Badge>} />
               <div className="divide-y divide-line">
                 {earlier.map((h) => (
-                  <HomeworkRow key={h.id} hw={h} onDelete={() => remove(h.id)} muted />
+                  <HomeworkRow key={h.id} hw={h} onDelete={() => setDeleteId(h.id)} muted />
                 ))}
               </div>
             </Card>
@@ -260,6 +261,19 @@ export default function HomeworkPage() {
       </div>
 
       {toast && <Toast message={toast} onDismiss={() => setToast(null)} />}
+      <ConfirmDialog
+        open={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        onConfirm={async () => {
+          if (!deleteId) return
+          await remove(deleteId)
+          setDeleteId(null)
+        }}
+        title={t('common.areYouSure')}
+        description={locale === 'ta' ? 'இந்த வீட்டுப்பாடத்தை நீக்கவா?' : 'Remove this homework item?'}
+        confirmLabel={t('common.confirm')}
+        cancelLabel={t('common.cancel')}
+      />
     </>
   )
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Download, Search, Upload, Users } from 'lucide-react'
 
 import { usePrefs } from '@/lib/i18n/provider'
@@ -14,6 +15,7 @@ import {
 
 export default function StudentsPage() {
   const { t, locale } = usePrefs()
+  const router = useRouter()
 
   const [students, setStudents] = useState<Student[]>([])
   const [sections, setSections] = useState<ClassSection[]>([])
@@ -109,6 +111,7 @@ export default function StudentsPage() {
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              aria-label={t('common.search')}
               placeholder={
                 locale === 'ta'
                   ? 'பெயர், சேர்க்கை எண், தந்தை பெயர் அல்லது தொலைபேசி'
@@ -117,7 +120,7 @@ export default function StudentsPage() {
               className="pl-9"
             />
           </div>
-          <Select value={sectionId} onChange={(e) => setSectionId(e.target.value)}>
+          <Select value={sectionId} onChange={(e) => setSectionId(e.target.value)} aria-label={t('att.selectClass')}>
             <option value="">{t('common.all')} — {t('common.class')}</option>
             {sections.map((s) => (
               <option key={s.id} value={s.id}>
@@ -159,9 +162,22 @@ export default function StudentsPage() {
             </thead>
             <tbody>
               {students.slice(0, 250).map((s) => (
-                <tr key={s.id} className="cursor-pointer hover:bg-surface-2">
+                <tr
+                  key={s.id}
+                  className="cursor-pointer transition-colors hover:bg-surface-2"
+                  onClick={() => router.push(`/students/${s.id}`)}
+                  role="link"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') router.push(`/students/${s.id}`)
+                  }}
+                >
                   <Td>
-                    <Link href={`/students/${s.id}`} className="flex items-center gap-2.5">
+                    <Link
+                      href={`/students/${s.id}`}
+                      className="flex items-center gap-2.5 ring-focus"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <Avatar name={s.name} size={32} />
                       <div className="min-w-0">
                         <div className="truncate font-medium text-ink">
@@ -186,6 +202,7 @@ export default function StudentsPage() {
                     <a
                       href={`tel:${s.guardian_phone}`}
                       className="font-mono text-xs text-forest hover:underline"
+                      onClick={(e) => e.stopPropagation()}
                     >
                       {s.guardian_phone}
                     </a>

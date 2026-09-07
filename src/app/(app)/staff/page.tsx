@@ -78,13 +78,14 @@ export default function StaffPage() {
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              aria-label={t('common.search')}
               placeholder={
                 locale === 'ta' ? 'பெயர், பாடம் அல்லது பதவி' : 'Name, subject or designation'
               }
               className="pl-9"
             />
           </div>
-          <Select value={role} onChange={(e) => setRole(e.target.value)}>
+          <Select value={role} onChange={(e) => setRole(e.target.value)} aria-label={t('common.filter')}>
             <option value="">{t('common.all')}</option>
             <option value="teacher">{t('role.teacher')}</option>
             <option value="admin">{t('role.admin')}</option>

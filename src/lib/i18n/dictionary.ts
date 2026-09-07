@@ -24,6 +24,8 @@ const dict = {
   'common.saving': { en: 'Saving…', ta: 'சேமிக்கிறது…' },
   'common.saved': { en: 'Saved', ta: 'சேமிக்கப்பட்டது' },
   'common.cancel': { en: 'Cancel', ta: 'ரத்து' },
+  'common.confirm': { en: 'Confirm', ta: 'உறுதிசெய்' },
+  'common.areYouSure': { en: 'Are you sure?', ta: 'நிச்சயமாகவா?' },
   'common.close': { en: 'Close', ta: 'மூடு' },
   'common.search': { en: 'Search', ta: 'தேடு' },
   'common.filter': { en: 'Filter', ta: 'வடிகட்டு' },

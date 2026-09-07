@@ -3,72 +3,91 @@
 @tailwind utilities;
 
 /* ═══════════════════════════════════════════════════════════
-   DESIGN SYSTEM — "Mosaic Grid Architecture"
-   Forest green · paper ground · hairline structure · mono data
+   DESIGN SYSTEM — "Soft Pastel Studio"
+   Buttery cream ground · mint/lavender/peach/sky accents ·
+   rounded everything · airy diffused shadows · friendly type
    ═══════════════════════════════════════════════════════════ */
 
 /* Colours are stored as space-separated RGB channels, not hex, so Tailwind
-   can compose opacity modifiers like `bg-forest/40` against them. */
+   can compose opacity modifiers like `bg-forest/40` against them.
+   Historical token names (forest/clay/danger/info) are kept so every
+   existing component keeps working — only their values changed, from a
+   forest-green/clay system to a soft pastel one. */
 :root {
   color-scheme: light;
 
-  /* Surfaces */
-  --paper: 247 247 245;
+  /* Surfaces — warm off-white/cream base with soft cloud cards */
+  --paper: 253 250 244;
   --surface: 255 255 255;
-  --surface-2: 240 242 239;
+  --surface-2: 245 240 250;
 
-  /* Structure */
-  --line: 221 227 220;
-  --line-strong: 194 206 195;
+  /* Structure — soft, barely-there lines instead of hairlines */
+  --line: 233 227 240;
+  --line-strong: 214 205 230;
 
-  /* Ink */
-  --ink: 22 36 26;
-  --ink-2: 70 88 75;
-  --ink-3: 125 143 130;
+  /* Ink — warm charcoal, never pure black (keeps things gentle) */
+  --ink: 51 46 66;
+  --ink-2: 100 92 122;
+  --ink-3: 148 140 168;
 
-  /* Brand */
-  --forest: 26 60 43;
-  --forest-2: 42 98 68;
-  --forest-dim: 231 239 233;
+  /* Brand — soft lavender-violet standing in for "forest" */
+  --forest: 138 122 224;
+  --forest-2: 116 98 214;
+  --forest-dim: 232 227 252;
 
-  /* Accents */
-  --clay: 166 96 15;
-  --clay-dim: 251 240 224;
-  --danger: 163 40 30;
-  --danger-dim: 251 234 232;
-  --info: 28 79 124;
-  --info-dim: 232 240 247;
+  /* Accents — pastel peach ("clay"), pastel coral ("danger"), pastel sky ("info") */
+  --clay: 214 140 90;
+  --clay-dim: 253 233 217;
+  --danger: 224 120 120;
+  --danger-dim: 253 227 227;
+  --info: 90 165 214;
+  --info-dim: 222 240 251;
 
-  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-serif: 'Lora', Georgia, serif;
+  /* Pastel accent family for chips, illustrations, status dots */
+  --mint: 168 219 197;
+  --lavender: 196 186 240;
+  --peach: 247 202 173;
+  --sky: 168 213 240;
+  --butter: 247 224 150;
+  --blush: 244 191 204;
+
+  --font-sans: 'Nunito', 'Quicksand', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Quicksand', 'Nunito', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
-  --font-tamil: 'Noto Sans Tamil', 'Inter', system-ui, sans-serif;
+  --font-tamil: 'Noto Sans Tamil', 'Nunito', system-ui, sans-serif;
 }
 
 .dark {
   color-scheme: dark;
 
-  --paper: 13 20 16;
-  --surface: 20 29 23;
-  --surface-2: 28 40 32;
+  --paper: 30 27 42;
+  --surface: 40 36 54;
+  --surface-2: 48 43 64;
 
-  --line: 37 51 40;
-  --line-strong: 53 71 58;
+  --line: 60 54 78;
+  --line-strong: 76 68 98;
 
-  --ink: 228 237 230;
-  --ink-2: 167 188 173;
-  --ink-3: 109 132 116;
+  --ink: 236 232 246;
+  --ink-2: 196 188 218;
+  --ink-3: 150 142 174;
 
-  --forest: 100 185 138;
-  --forest-2: 127 208 162;
-  --forest-dim: 23 44 31;
+  --forest: 176 162 244;
+  --forest-2: 196 184 250;
+  --forest-dim: 58 51 84;
 
-  --clay: 217 154 69;
-  --clay-dim: 43 30 11;
-  --danger: 232 131 122;
-  --danger-dim: 44 18 16;
-  --info: 121 179 224;
-  --info-dim: 15 34 51;
+  --clay: 232 172 130;
+  --clay-dim: 62 46 38;
+  --danger: 236 150 150;
+  --danger-dim: 66 40 42;
+  --info: 138 196 236;
+  --info-dim: 34 52 68;
+
+  --mint: 120 180 156;
+  --lavender: 162 150 214;
+  --peach: 214 164 132;
+  --sky: 130 178 214;
+  --butter: 212 190 122;
+  --blush: 210 154 170;
 }
 
 * {
@@ -102,32 +121,32 @@ body {
   overscroll-behavior-y: none;
 }
 
-/* Paper grain — the "Mosaic" texture, extremely subtle */
+/* Soft pastel glow — replaces the old paper grain with three diffused
+   radial blobs (mint / lavender / peach) fixed behind all content. Using
+   fixed + low opacity keeps it calm rather than distracting. */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.5;
-  background-image: radial-gradient(
-    circle at 1px 1px,
-    rgba(26, 60, 43, 0.055) 1px,
-    transparent 0
-  );
-  background-size: 22px 22px;
+  opacity: 0.55;
+  background-image:
+    radial-gradient(38rem 26rem at 8% -6%, rgba(196, 186, 240, 0.28), transparent 60%),
+    radial-gradient(34rem 24rem at 96% 8%, rgba(168, 219, 197, 0.26), transparent 60%),
+    radial-gradient(30rem 22rem at 50% 105%, rgba(247, 202, 173, 0.22), transparent 60%);
 }
 .dark body::before {
-  background-image: radial-gradient(
-    circle at 1px 1px,
-    rgba(160, 200, 175, 0.05) 1px,
-    transparent 0
-  );
+  opacity: 0.35;
+  background-image:
+    radial-gradient(38rem 26rem at 8% -6%, rgba(162, 150, 214, 0.22), transparent 60%),
+    radial-gradient(34rem 24rem at 96% 8%, rgba(120, 180, 156, 0.18), transparent 60%),
+    radial-gradient(30rem 22rem at 50% 105%, rgba(214, 164, 132, 0.16), transparent 60%);
 }
 
 /* ── Layer components ─────────────────────────────────────── */
 @layer components {
-  /* Monospaced structural label — the signature of this system */
+  /* Monospaced structural label — kept for data-dense labels/eyebrows */
   .label-mono {
     @apply font-mono text-2xs uppercase tracking-[0.12em] text-ink-3 font-medium;
   }
@@ -140,14 +159,53 @@ body::before {
     @apply border border-line;
   }
 
+  /* Soft floating card — rounded, airy shadow, near-invisible border */
   .card {
-    @apply bg-surface hairline rounded-md;
+    @apply bg-surface hairline rounded-lg;
   }
 
-  /* Focus ring consistent everywhere */
-  .ring-focus {
-    @apply outline-none focus-visible:ring-2 focus-visible:ring-forest/40 focus-visible:ring-offset-1 focus-visible:ring-offset-paper;
+  /* Frosted glass panel for headers/overlays that float above the pastel glow */
+  .glass {
+    @apply border border-white/40 bg-white/60 backdrop-blur-md dark:border-white/10 dark:bg-white/5;
   }
+
+  /* Focus ring consistent everywhere — soft lavender halo, no offset harshness */
+  .ring-focus {
+    @apply outline-none focus-visible:ring-2 focus-visible:ring-forest/40 focus-visible:ring-offset-2 focus-visible:ring-offset-paper;
+  }
+
+  /* Shimmer skeleton — replaces flat pulse with a soft moving highlight */
+  .skeleton-shimmer {
+    background-image: linear-gradient(
+      100deg,
+      rgb(var(--surface-2)) 30%,
+      rgba(255, 255, 255, 0.65) 50%,
+      rgb(var(--surface-2)) 70%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.6s linear infinite;
+  }
+  .dark .skeleton-shimmer {
+    background-image: linear-gradient(
+      100deg,
+      rgb(var(--surface-2)) 30%,
+      rgba(255, 255, 255, 0.08) 50%,
+      rgb(var(--surface-2)) 70%
+    );
+  }
+
+  /* Stagger helper for list/card entrances */
+  .stagger-in > * {
+    animation: fade-up 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .stagger-in > *:nth-child(1) { animation-delay: 20ms; }
+  .stagger-in > *:nth-child(2) { animation-delay: 60ms; }
+  .stagger-in > *:nth-child(3) { animation-delay: 100ms; }
+  .stagger-in > *:nth-child(4) { animation-delay: 140ms; }
+  .stagger-in > *:nth-child(5) { animation-delay: 180ms; }
+  .stagger-in > *:nth-child(6) { animation-delay: 220ms; }
+  .stagger-in > *:nth-child(7) { animation-delay: 260ms; }
+  .stagger-in > *:nth-child(8) { animation-delay: 300ms; }
 
   /* Scrollbar */
   .thin-scroll::-webkit-scrollbar {

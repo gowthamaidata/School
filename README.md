@@ -27,6 +27,17 @@ Eight modules:
 Plus: bilingual EN/தமிழ் throughout, light and dark themes, and installable as
 an app on any Android phone, iPhone or desktop.
 
+### 2026 UI refresh
+
+The app now ships with a full soft-pastel UI system:
+
+- Cream/off-white base with mint, lavender, peach, sky and butter accents
+- Generous rounded corners across cards, inputs, buttons, nav and modals
+- Lightweight frosted-glass surfaces and diffused shadows
+- Rounded, friendly typography (Nunito + Quicksand + Noto Sans Tamil)
+- Animated page transitions, staggered list reveals, shimmer skeletons, and
+  animated dashboard counters/progress indicators
+
 ---
 
 ## Quick start
@@ -55,6 +66,8 @@ Set it in `.env.local`:
 
 ```bash
 NEXT_PUBLIC_DATA_MODE=demo
+# Optional in supabase mode; controls dashboard term-based fee metrics
+NEXT_PUBLIC_CURRENT_TERM=1
 ```
 
 Every component talks to `src/lib/data/repository.ts` and nothing else. That file

@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Check, Megaphone, Send, Smartphone } from 'lucide-react'
 
 import { usePrefs } from '@/lib/i18n/provider'
 import { useSession } from '@/lib/auth/session'
-import { repo, STUDENTS, SECTIONS, staffById } from '@/lib/data/repository'
+import { repo, staffById } from '@/lib/data/repository'
 import type { Announcement, MessageChannel } from '@/lib/data/types'
 import { formatDate } from '@/lib/utils'
 import {
@@ -28,6 +28,7 @@ export default function CommunicationPage() {
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [standard, setStandard] = useState<string>('')
+  const [recipientCount, setRecipientCount] = useState(0)
   const [channels, setChannels] = useState<MessageChannel[]>(['portal', 'whatsapp'])
   const [sending, setSending] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
@@ -39,10 +40,15 @@ export default function CommunicationPage() {
     })
   }, [])
 
-  const recipientCount = useMemo(() => {
-    if (!standard) return STUDENTS.length
-    const ids = SECTIONS.filter((s) => s.standard === Number(standard)).map((s) => s.id)
-    return STUDENTS.filter((s) => ids.includes(s.section_id)).length
+  useEffect(() => {
+    let alive = true
+    repo.getStudents(standard ? { standard: Number(standard) } : undefined).then((students) => {
+      if (!alive) return
+      setRecipientCount(students.length)
+    })
+    return () => {
+      alive = false
+    }
   }, [standard])
 
   function toggleChannel(c: MessageChannel) {
@@ -82,7 +88,7 @@ export default function CommunicationPage() {
         }
       />
 
-      <div className="grid gap-4 lg:grid-cols-[400px_1fr]">
+      <div className="grid gap-4 lg:grid-cols-[minmax(320px,380px)_1fr]">
         {/* ── Composer ────────────────────────────────── */}
         <Card className="h-fit lg:sticky lg:top-6">
           <CardHeader title={t('msg.compose')} hint={t('msg.whatsappNote')} />
@@ -135,6 +141,7 @@ export default function CommunicationPage() {
                     <button
                       key={c.id}
                       onClick={() => toggleChannel(c.id)}
+                      aria-pressed={on}
                       className={`flex items-center gap-1.5 rounded border px-2.5 py-1.5 text-xs font-medium ring-focus transition-colors ${
                         on
                           ? 'border-forest bg-forest-dim text-forest'

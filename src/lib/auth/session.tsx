@@ -3,6 +3,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { repo, IS_DEMO } from '@/lib/data/repository'
+import { getSupabase } from '@/lib/data/supabase-client'
 import type { Role, SessionUser } from '@/lib/data/types'
 
 interface SessionValue {
@@ -85,12 +86,12 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
           }
         }
       } catch {
-        /* storage blocked — fall through to signed-out */
+        console.warn('[session] localStorage restore failed; continuing as signed-out')
       }
 
       if (!IS_DEMO) {
-        // In Supabase mode the real session is restored by the Supabase client.
-        // See src/lib/data/supabase.ts — wire getSession() here when you go live.
+        // Supabase auth sessions are managed by @supabase/supabase-js; we still
+        // keep local app role/session metadata in STORAGE_KEY for route guards.
       }
       if (!cancelled) setLoading(false)
     }
@@ -107,7 +108,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       try {
         window.localStorage.setItem(STORAGE_KEY, JSON.stringify(u))
       } catch {
-        /* non-persistent session is still a usable session */
+        console.warn('[session] localStorage save failed; session will be non-persistent')
       }
       router.push(homeRouteFor(u.role))
     },
@@ -116,10 +117,15 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = useCallback(() => {
     setUser(null)
+    if (!IS_DEMO) {
+      getSupabase().auth.signOut().catch((err) => {
+        console.warn('[session] supabase signOut failed', err)
+      })
+    }
     try {
       window.localStorage.removeItem(STORAGE_KEY)
     } catch {
-      /* nothing to clean up */
+      console.warn('[session] localStorage cleanup failed on sign-out')
     }
     router.push('/')
   }, [router])
@@ -145,11 +151,22 @@ export function useSession(): SessionValue {
   return ctx
 }
 
-/** Convenience for demo sign-in buttons. */
+/** Convenience for demo sign-in buttons. Exposes a loading flag so callers can
+ * distinguish "still fetching" from "genuinely no demo users" (e.g. in
+ * supabase mode, where getDemoUsers() legitimately returns an empty list). */
 export function useDemoUsers() {
   const [users, setUsers] = useState<SessionUser[]>([])
+  const [loading, setLoading] = useState(true)
   useEffect(() => {
-    repo.getDemoUsers().then(setUsers)
+    let alive = true
+    repo.getDemoUsers().then((u) => {
+      if (!alive) return
+      setUsers(u)
+      setLoading(false)
+    })
+    return () => {
+      alive = false
+    }
   }, [])
-  return users
+  return { users, loading }
 }
