@@ -12,7 +12,7 @@ import {
 import { cn } from '@/lib/utils'
 import { usePrefs } from '@/lib/i18n/provider'
 import type { TranslationKey } from '@/lib/i18n/dictionary'
-import { useSession, type Capability } from '@/lib/auth/session'
+import { useSession, homeRouteFor, type Capability } from '@/lib/auth/session'
 import { IS_DEMO, SCHOOL } from '@/lib/data/repository'
 import { Avatar, Badge } from '@/components/ui'
 
@@ -37,6 +37,15 @@ const NAV: NavItem[] = [
 const PARENT_NAV: NavItem[] = [
   { href: '/parent', labelKey: 'nav.myChild', icon: UserRound, capability: 'view_own_child' },
 ]
+
+/**
+ * Every capability-gated route in the app, regardless of which sidebar shows
+ * it. The route guard in AppShell checks a visited path against this full
+ * list — not just the current role's own nav — so a parent typing /dashboard
+ * or a teacher typing /fees is caught even though their sidebar never links
+ * there in the first place.
+ */
+const ALL_GATED_ROUTES: NavItem[] = [...NAV, ...PARENT_NAV]
 
 /**
  * Declared at module scope, not inside AppShell. A component defined in a
@@ -84,16 +93,42 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
 
-  // Route guard — bounce anyone without a session back to sign-in.
+  const navList = user?.role === 'parent' ? PARENT_NAV : NAV
+
+  // The nav item (if any) that owns the current route — checked against
+  // every gated route in the app, not just the ones this role's sidebar
+  // shows. That distinction matters: NAV alone would never catch a parent
+  // typing /dashboard, because /dashboard isn't in PARENT_NAV at all, it's
+  // simply a route their sidebar never mentions. Most of the app —
+  // /settings, /report-card/*, a student's own profile — has no entry here
+  // and is open to anyone signed in.
+  const currentNavItem = ALL_GATED_ROUTES.find(
+    (i) => pathname === i.href || pathname.startsWith(i.href + '/'),
+  )
+  const authorized = !currentNavItem || (!!user && can(currentNavItem.capability))
+
+  // Route guard — bounce anyone without a session back to sign-in, and bounce
+  // a signed-in user away from a section their role can't reach. This is what
+  // actually stops an Accountant from marking attendance by typing the URL or
+  // tapping the PWA's "Mark attendance" shortcut; hiding the nav link alone
+  // only stops someone who never tries.
   useEffect(() => {
-    if (!loading && !user) router.replace('/')
-  }, [loading, user, router])
+    if (loading) return
+    if (!user) {
+      router.replace('/')
+      return
+    }
+    if (!authorized) {
+      const fallback = navList.find((i) => can(i.capability))
+      router.replace(fallback?.href ?? homeRouteFor(user.role))
+    }
+  }, [loading, user, authorized, navList, can, router])
 
   useEffect(() => {
     setMobileOpen(false)
   }, [pathname])
 
-  if (loading || !user) {
+  if (loading || !user || !authorized) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="h-6 w-6 animate-spin rounded-full border-2 border-line border-t-forest" />
@@ -101,7 +136,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     )
   }
 
-  const items = (user.role === 'parent' ? PARENT_NAV : NAV).filter((i) => can(i.capability))
+  const items = navList.filter((i) => can(i.capability))
 
   const Sidebar = (
     <>

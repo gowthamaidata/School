@@ -35,15 +35,31 @@ const MATRIX: Record<Role, Capability[]> = {
     'view_dashboard', 'view_all_students', 'manage_fees', 'send_announcements',
     'view_staff', 'enter_marks', 'mark_attendance', 'assign_homework',
   ],
+  // Office staff (Accountant, Office Superintendent) run fees, records and
+  // announcements. Attendance and marks belong to the class teacher, so
+  // those capabilities are deliberately absent here — enforced both in the
+  // nav (AppShell hides the link) and by the route guard in AppShell (a
+  // direct visit to /attendance bounces back), not just by hiding a link.
   admin: [
     'view_dashboard', 'view_all_students', 'manage_fees', 'send_announcements',
     'view_staff',
   ],
-  teacher: [
-    'view_dashboard', 'mark_attendance', 'enter_marks', 'view_all_students',
-    'assign_homework',
-  ],
+  // Teachers live in their classroom, not in whole-school numbers. No
+  // dashboard — attendance is their landing page instead (see
+  // homeRouteFor below and the sign-in redirect in src/app/page.tsx).
+  teacher: ['mark_attendance', 'enter_marks', 'view_all_students', 'assign_homework'],
   parent: ['view_own_child'],
+}
+
+/**
+ * Where a role lands after sign-in (and where AppShell's route guard sends
+ * anyone who ends up somewhere their role can't access — a stale bookmark,
+ * the PWA's "Mark attendance" shortcut, browser back/forward, etc).
+ */
+export function homeRouteFor(role: Role): string {
+  if (role === 'parent') return '/parent'
+  if (role === 'teacher') return '/attendance'
+  return '/dashboard'
 }
 
 const SessionContext = createContext<SessionValue | null>(null)
@@ -93,7 +109,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       } catch {
         /* non-persistent session is still a usable session */
       }
-      router.push(u.role === 'parent' ? '/parent' : '/dashboard')
+      router.push(homeRouteFor(u.role))
     },
     [router],
   )

@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 
 import { usePrefs } from '@/lib/i18n/provider'
-import { useSession, useDemoUsers } from '@/lib/auth/session'
+import { useSession, useDemoUsers, homeRouteFor } from '@/lib/auth/session'
 import { IS_DEMO, SCHOOL } from '@/lib/data/repository'
 import { Avatar, Badge } from '@/components/ui'
 import type { Role } from '@/lib/data/types'
@@ -51,7 +51,7 @@ export default function SignInPage() {
   const router = useRouter()
 
   useEffect(() => {
-    if (!loading && user) router.replace(user.role === 'parent' ? '/parent' : '/dashboard')
+    if (!loading && user) router.replace(homeRouteFor(user.role))
   }, [loading, user, router])
 
   const highlights = [
