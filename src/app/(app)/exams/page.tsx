@@ -1,8 +1,8 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
-import { FileText, Save, TrendingUp } from 'lucide-react'
+import { BookOpenCheck, CalendarDays, FileText, Save, TrendingUp } from 'lucide-react'
 
 import { usePrefs } from '@/lib/i18n/provider'
 import { useSession } from '@/lib/auth/session'
@@ -10,8 +10,10 @@ import { repo, subjectsForStandard } from '@/lib/data/repository'
 import type { ClassSection, Exam, Mark, Student, Subject } from '@/lib/data/types'
 import { formatDate, gradeFor } from '@/lib/utils'
 import {
-  Badge, Button, Card, CardHeader, Input, PageHeader, Select, Skeleton, Stat, Table, Td, Th, Toast,
+  Badge, Button, Card, CardHeader, ChartFrame, Empty, Input, PageHeader,
+  Select, Skeleton, Stat, Table, Td, Th, Toast,
 } from '@/components/ui'
+import { BarList } from '@/components/charts'
 
 export default function ExamsPage() {
   const { t, locale } = usePrefs()
@@ -29,6 +31,10 @@ export default function ExamsPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
+  const [dirty, setDirty] = useState(false)
+  /** Marks entry is a typing task, so the inputs are wired for the keyboard:
+   *  Enter / ↓ moves to the next student, ↑ goes back. */
+  const inputsRef = useRef<(HTMLInputElement | null)[]>([])
 
   useEffect(() => {
     Promise.all([repo.getExams(), repo.getSections()]).then(([e, s]) => {
@@ -77,6 +83,7 @@ export default function ExamsPage() {
       d[s.id] = m?.absent ? 'AB' : m?.marks_obtained != null ? String(m.marks_obtained) : ''
     }
     setDraft(d)
+    setDirty(false)
   }, [subjectId, students, marks])
 
   const subject = subjects.find((s) => s.id === subjectId)
@@ -99,6 +106,42 @@ export default function ExamsPage() {
     }
   }, [draft, passMarks])
 
+  /** Grade spread for the subject in view — the one insight a teacher
+   *  actually acts on while entering marks. */
+  const distribution = useMemo(() => {
+    const bands: { label: string; min: number; tone: 'leaf' | 'forest' | 'clay' | 'danger' }[] = [
+      { label: 'A1–A2 (81%+)', min: 81, tone: 'leaf' },
+      { label: 'B1–B2 (61–80%)', min: 61, tone: 'forest' },
+      { label: 'C1–C2 (41–60%)', min: 41, tone: 'clay' },
+      { label: locale === 'ta' ? '40%க்குக் கீழ்' : 'Below 41%', min: 0, tone: 'danger' },
+    ]
+    const values = Object.values(draft)
+      .filter((v) => v !== '' && v.toUpperCase() !== 'AB')
+      .map(Number)
+      .filter((n) => !Number.isNaN(n))
+      .map((n) => (n / maxMarks) * 100)
+    return bands.map((b, i) => {
+      const upper = i === 0 ? Infinity : bands[i - 1].min
+      const count = values.filter((v) => v >= b.min && v < upper).length
+      return { label: b.label, value: count, display: String(count), tone: b.tone }
+    })
+  }, [draft, maxMarks, locale])
+
+  function focusRow(index: number) {
+    inputsRef.current[index]?.focus()
+    inputsRef.current[index]?.select()
+  }
+
+  function onMarkKeyDown(e: React.KeyboardEvent<HTMLInputElement>, index: number) {
+    if (e.key === 'Enter' || e.key === 'ArrowDown') {
+      e.preventDefault()
+      focusRow(Math.min(students.length - 1, index + 1))
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      focusRow(Math.max(0, index - 1))
+    }
+  }
+
   async function save() {
     if (!examId || !subjectId) return
     setSaving(true)
@@ -113,10 +156,17 @@ export default function ExamsPage() {
         marks: isAbsent || raw === '' || Number.isNaN(n) ? null : Math.min(maxMarks, Math.max(0, n)),
       }
     })
-    await repo.saveMarks(entries)
-    setSaving(false)
-    setToast(`${t('common.saved')} · ${subject?.name}`)
-    await load()
+    try {
+      await repo.saveMarks(entries)
+      setDirty(false)
+      setToast(`${t('common.saved')} · ${locale === 'ta' ? subject?.name_ta : subject?.name}`)
+      await load()
+    } catch (err) {
+      console.error('[exams] save failed', err)
+      setToast(t('common.error'))
+    } finally {
+      setSaving(false)
+    }
   }
 
   function normalizeMarksInput(studentId: string) {
@@ -151,7 +201,7 @@ export default function ExamsPage() {
       <Card className="mb-4">
         <div className="grid gap-2.5 p-3.5 sm:grid-cols-3">
           <div>
-            <label htmlFor="exam-picker" className="label-mono mb-1.5 block">{t('exam.examination')}</label>
+            <label htmlFor="exam-picker" className="label mb-1.5 block">{t('exam.examination')}</label>
             <Select id="exam-picker" value={examId} onChange={(e) => setExamId(e.target.value)}>
               {exams.map((e) => (
                 <option key={e.id} value={e.id}>
@@ -162,7 +212,7 @@ export default function ExamsPage() {
             </Select>
           </div>
           <div>
-            <label htmlFor="exam-section" className="label-mono mb-1.5 block">{t('common.class')}</label>
+            <label htmlFor="exam-section" className="label mb-1.5 block">{t('common.class')}</label>
             <Select id="exam-section" value={sectionId} onChange={(e) => setSectionId(e.target.value)}>
               {sections.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -172,7 +222,7 @@ export default function ExamsPage() {
             </Select>
           </div>
           <div>
-            <label htmlFor="exam-subject" className="label-mono mb-1.5 block">{t('exam.subject')}</label>
+            <label htmlFor="exam-subject" className="label mb-1.5 block">{t('exam.subject')}</label>
             <Select id="exam-subject" value={subjectId} onChange={(e) => setSubjectId(e.target.value)}>
               {subjects.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -184,33 +234,62 @@ export default function ExamsPage() {
         </div>
       </Card>
 
-      {/* ── Class stats ─────────────────────────────────── */}
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <Stat
-          label={t('exam.classAverage')}
-          value={stats.avg}
-          tone={stats.avg >= 60 ? 'forest' : stats.avg >= 45 ? 'clay' : 'danger'}
-          sub={`${locale === 'ta' ? 'அதிகபட்சம்' : 'out of'} ${maxMarks}`}
-          icon={<TrendingUp size={16} />}
-        />
-        <Stat
-          label={t('exam.passPercent')}
-          value={`${stats.pass}%`}
-          tone={stats.pass >= 90 ? 'forest' : stats.pass >= 70 ? 'clay' : 'danger'}
-          sub={`${locale === 'ta' ? 'தேர்ச்சி மதிப்பெண்' : 'pass mark'} ${passMarks}`}
-        />
-        <Stat
-          label={locale === 'ta' ? 'உயர்ந்த மதிப்பெண்' : 'Highest'}
-          value={stats.top}
-          tone="info"
-          sub={gradeFor((stats.top / maxMarks) * 100)}
-        />
-        <Stat
-          label={locale === 'ta' ? 'பதிவு செய்யப்பட்டது' : 'Entered'}
-          value={`${stats.entered}/${students.length}`}
-          tone="neutral"
-          sub={locale === 'ta' ? 'மாணவர்கள்' : 'students'}
-        />
+      {/* ── How the class is doing, while you type ─────── */}
+      <div className="grid gap-3 lg:grid-cols-5">
+        <div className="grid gap-3 sm:grid-cols-2 lg:col-span-2">
+          <Stat
+            label={t('exam.classAverage')}
+            value={stats.avg}
+            tone={stats.avg >= 60 ? 'leaf' : stats.avg >= 45 ? 'clay' : 'danger'}
+            sub={`${locale === 'ta' ? 'அதிகபட்சம்' : 'out of'} ${maxMarks}`}
+            icon={<TrendingUp size={17} />}
+          />
+          <Stat
+            label={t('exam.passPercent')}
+            value={`${stats.pass}%`}
+            tone={stats.pass >= 90 ? 'leaf' : stats.pass >= 70 ? 'clay' : 'danger'}
+            sub={`${locale === 'ta' ? 'தேர்ச்சி மதிப்பெண்' : 'pass mark'} ${passMarks}`}
+            icon={<BookOpenCheck size={17} />}
+          />
+          <Stat
+            label={locale === 'ta' ? 'உயர்ந்த மதிப்பெண்' : 'Highest'}
+            value={stats.top}
+            tone="info"
+            sub={stats.top ? gradeFor((stats.top / maxMarks) * 100) : '—'}
+          />
+          <Stat
+            label={locale === 'ta' ? 'பதிவு செய்யப்பட்டது' : 'Entered'}
+            value={`${stats.entered}/${students.length}`}
+            tone="neutral"
+            sub={t('common.students')}
+          />
+        </div>
+
+        <ChartFrame
+          className="lg:col-span-3"
+          title={locale === 'ta' ? 'தர விநியோகம்' : 'Grade spread'}
+          hint={
+            locale === 'ta'
+              ? 'நீங்கள் பதிவு செய்யும்போதே புதுப்பிக்கப்படும்'
+              : 'Updates live as you type — before anything is saved'
+          }
+          data={distribution.map((d) => ({ label: d.label, value: d.display }))}
+        >
+          {stats.entered === 0 ? (
+            <Empty
+              title={locale === 'ta' ? 'இன்னும் மதிப்பெண் இல்லை' : 'No marks entered yet'}
+              hint={
+                locale === 'ta'
+                  ? 'கீழே மதிப்பெண்களைப் பதிவு செய்யத் தொடங்குங்கள்.'
+                  : 'Start typing marks below and the spread appears here.'
+              }
+              icon={<TrendingUp size={24} />}
+              className="py-8"
+            />
+          ) : (
+            <BarList items={distribution} />
+          )}
+        </ChartFrame>
       </div>
 
       {/* ── Marks grid ──────────────────────────────────── */}
@@ -223,10 +302,17 @@ export default function ExamsPage() {
             locale === 'ta' ? 'வரவில்லை என்றால் AB' : 'type AB if absent'
           }`}
           action={
-            <Button size="sm" onClick={save} disabled={saving || loading}>
-              <Save size={14} />
-              {saving ? t('common.saving') : t('common.save')}
-            </Button>
+            <div className="flex items-center gap-2">
+              {dirty && (
+                <Badge tone="clay" dot>
+                  {locale === 'ta' ? 'சேமிக்கப்படவில்லை' : 'Unsaved'}
+                </Badge>
+              )}
+              <Button size="sm" onClick={save} loading={saving} disabled={loading || !dirty}>
+                <Save size={14} aria-hidden />
+                {t('common.save')}
+              </Button>
+            </div>
           }
         />
 
@@ -248,7 +334,7 @@ export default function ExamsPage() {
               </tr>
             </thead>
             <tbody>
-              {students.map((s) => {
+              {students.map((s, index) => {
                 const raw = draft[s.id] ?? ''
                 const isAb = raw.toUpperCase() === 'AB'
                 const n = Number(raw)
@@ -257,7 +343,7 @@ export default function ExamsPage() {
                 const failed = valid && n < passMarks
 
                 return (
-                  <tr key={s.id} className="hover:bg-surface-2">
+                  <tr key={s.id} className="transition-colors hover:bg-surface-2/70">
                     <Td>
                       <span className="tabular font-mono text-xs text-ink-3">{s.roll_no}</span>
                     </Td>
@@ -269,17 +355,23 @@ export default function ExamsPage() {
                     </Td>
                     <Td align="center">
                       <Input
+                        ref={(el) => {
+                          inputsRef.current[index] = el
+                        }}
                         value={raw}
-                        onChange={(e) =>
+                        onChange={(e) => {
+                          setDirty(true)
                           setDraft((d) => ({ ...d, [s.id]: e.target.value }))
-                        }
+                        }}
                         onBlur={() => normalizeMarksInput(s.id)}
+                        onKeyDown={(e) => onMarkKeyDown(e, index)}
                         inputMode="numeric"
                         maxLength={3}
                         placeholder="—"
-                        aria-label={`${t('exam.marksObtained')} ${s.name}`}
+                        invalid={failed}
+                        aria-label={`${t('exam.marksObtained')} — ${s.name}`}
                         className={`mx-auto h-9 w-20 text-center font-mono tabular ${
-                          failed ? 'border-danger/50 text-danger' : ''
+                          failed ? 'text-danger' : ''
                         }`}
                       />
                     </Td>
@@ -287,16 +379,17 @@ export default function ExamsPage() {
                       {grade === '—' ? (
                         <span className="text-ink-3">—</span>
                       ) : (
-                        <Badge tone={isAb ? 'neutral' : failed ? 'danger' : 'forest'}>
-                          {grade}
-                        </Badge>
+                        <Badge tone={isAb ? 'neutral' : failed ? 'danger' : 'leaf'}>{grade}</Badge>
                       )}
                     </Td>
                     <Td align="right">
-                      <Link href={`/report-card/${s.id}?exam=${examId}`}>
-                        <Button size="sm" variant="ghost">
-                          <FileText size={14} />
-                        </Button>
+                      <Link
+                        href={`/report-card/${s.id}?exam=${examId}`}
+                        title={t('exam.generateReportCard')}
+                        aria-label={`${t('exam.generateReportCard')} — ${s.name}`}
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-pill text-ink-3 ring-focus transition-colors hover:bg-surface-2 hover:text-forest"
+                      >
+                        <FileText size={15} aria-hidden />
                       </Link>
                     </Td>
                   </tr>
@@ -308,20 +401,20 @@ export default function ExamsPage() {
       </Card>
 
       {/* ── Exam schedule ───────────────────────────────── */}
-      <Card className="mt-4">
-        <CardHeader title={t('dash.upcomingExams')} />
+      <Card className="mt-4 overflow-hidden">
+        <CardHeader icon={<CalendarDays size={15} />} title={t('dash.upcomingExams')} />
         <div className="divide-y divide-line">
           {exams.map((e) => (
-            <div key={e.id} className="flex items-center gap-3 px-4 py-3">
+            <div key={e.id} className="flex items-center gap-3 px-4 py-3.5 sm:px-5">
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-medium text-ink">
                   {locale === 'ta' ? e.name_ta : e.name}
                 </div>
-                <div className="font-mono text-2xs text-ink-3">
+                <div className="text-2xs text-ink-3">
                   {formatDate(e.start_date)} — {formatDate(e.end_date)} · {t('fee.term')} {e.term}
                 </div>
               </div>
-              <Badge tone={e.published ? 'forest' : 'clay'}>
+              <Badge tone={e.published ? 'leaf' : 'clay'} dot>
                 {e.published
                   ? locale === 'ta' ? 'வெளியிடப்பட்டது' : 'Published'
                   : locale === 'ta' ? 'திட்டமிடப்பட்டது' : 'Scheduled'}

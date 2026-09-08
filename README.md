@@ -27,16 +27,52 @@ Eight modules:
 Plus: bilingual EN/தமிழ் throughout, light and dark themes, and installable as
 an app on any Android phone, iPhone or desktop.
 
-### 2026 UI refresh
+### The design system — "Softly, for school"
 
-The app now ships with a full soft-pastel UI system:
+The interface runs on one small set of tokens defined in
+`src/app/globals.css` and exposed to Tailwind in `tailwind.config.ts`.
+Nothing in the app hard-codes a colour, radius, shadow or easing curve.
 
-- Cream/off-white base with mint, lavender, peach, sky and butter accents
-- Generous rounded corners across cards, inputs, buttons, nav and modals
-- Lightweight frosted-glass surfaces and diffused shadows
-- Rounded, friendly typography (Nunito + Quicksand + Noto Sans Tamil)
-- Animated page transitions, staggered list reveals, shimmer skeletons, and
-  animated dashboard counters/progress indicators
+- **Ground** — warm off-white paper, never pure white, with three very soft
+  fixed washes behind the content for depth without weight
+- **Colour carries meaning, not decoration** — sage-green for present/paid,
+  amber for attention, crimson for absent/overdue, violet for the brand and
+  for navigation state; the pastel family (mint, lavender, peach, sky,
+  butter, blush) is used for washes only
+- **Two steps per hue** — a mark colour for fills and strokes, and a darker
+  `*-ink` step for label-sized text on the matching wash, so every status
+  pill clears 4.5:1
+- **Graded geometry** — `pill` for chips, toggles and icon buttons, 12px for
+  inputs and rows, 16px for cards, 26px for panels. Deliberately not
+  "everything is a giant rounded rectangle"
+- **Diffused, low-contrast shadows** and hairline borders instead of heavy
+  panels
+- **Type** — Outfit for UI and display, Noto Sans Tamil for the Tamil UI, and
+  JetBrains Mono reserved for codes and admission numbers
+- **Motion** — one soft curve (`ease-soft`), 150–350ms, transform and opacity
+  only: staggered section reveals, shimmer skeletons, animated counters and
+  progress, and a check that pops when attendance is confirmed. All of it
+  collapses under `prefers-reduced-motion`
+
+Every screen was checked with axe-core at desktop and mobile widths in both
+themes and reports **zero violations**.
+
+### What the redesign added
+
+- A **role-aware dashboard** that leads with one hero number, a "Needs you
+  today" action queue, and a class-by-class attendance heat strip — instead
+  of four identical stat cards over a table
+- A **⌘K command palette** for jumping between sections and finding any
+  student by name or admission number
+- **Charts built for reading**: a fee-collection trend with a real axis, a
+  target reference line, hover crosshair and a screen-reader table of the
+  same numbers
+- **Attendance in two columns** with per-student segmented marking, roster
+  search, a completion bar and "mark the rest present"
+- **Responsive tables**: dense tables from `sm` up, card lists on phones,
+  and real pagination instead of a silent "first 200 rows" cut-off
+- Deliberate **loading, empty, error and success** states on every
+  data-dependent screen, plus route-level error and not-found pages
 
 ---
 
@@ -140,6 +176,8 @@ src/
 │       └── settings/         Language, theme, install
 ├── components/
 │   ├── ui/                   Design-system primitives
+│   ├── charts.tsx            Trend, heat grid and bar-list charts
+│   ├── command-palette.tsx   ⌘K navigation + student search
 │   └── app-shell.tsx         Sidebar, mobile nav, route guard
 └── lib/
     ├── data/

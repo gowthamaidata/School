@@ -1,14 +1,14 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { GraduationCap, Phone, Search } from 'lucide-react'
+import { GraduationCap, Phone } from 'lucide-react'
 
 import { usePrefs } from '@/lib/i18n/provider'
 import { repo } from '@/lib/data/repository'
 import type { ClassSection, Staff } from '@/lib/data/types'
 import { formatDate } from '@/lib/utils'
 import {
-  Avatar, Badge, Card, CardHeader, Empty, Input, PageHeader, Select, Skeleton, Table, Td, Th,
+  Avatar, Badge, Button, Card, Empty, PageHeader, SearchInput, Select, Skeleton,
 } from '@/components/ui'
 
 export default function StaffPage() {
@@ -70,21 +70,14 @@ export default function StaffPage() {
 
       <Card className="mb-4">
         <div className="grid gap-2.5 p-3.5 sm:grid-cols-[1fr_200px]">
-          <div className="relative">
-            <Search
-              size={15}
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-3"
-            />
-            <Input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              aria-label={t('common.search')}
-              placeholder={
-                locale === 'ta' ? 'பெயர், பாடம் அல்லது பதவி' : 'Name, subject or designation'
-              }
-              className="pl-9"
-            />
-          </div>
+          <SearchInput
+            value={query}
+            onValueChange={setQuery}
+            label={t('common.search')}
+            placeholder={
+              locale === 'ta' ? 'பெயர், பாடம் அல்லது பதவி' : 'Name, subject or designation'
+            }
+          />
           <Select value={role} onChange={(e) => setRole(e.target.value)} aria-label={t('common.filter')}>
             <option value="">{t('common.all')}</option>
             <option value="teacher">{t('role.teacher')}</option>
@@ -95,87 +88,89 @@ export default function StaffPage() {
         </div>
       </Card>
 
-      <Card className="overflow-hidden">
-        <CardHeader
-          title={t('staff.title')}
-          hint={`${filtered.length} ${locale === 'ta' ? 'பதிவுகள்' : 'records'}`}
-        />
-        {loading ? (
-          <div className="space-y-1.5 p-3">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <Skeleton key={i} className="h-12" />
-            ))}
-          </div>
-        ) : filtered.length === 0 ? (
-          <Empty title={t('common.noResults')} icon={<GraduationCap size={22} />} />
-        ) : (
-          <Table>
-            <thead>
-              <tr>
-                <Th>{t('common.name')}</Th>
-                <Th>{t('staff.designation')}</Th>
-                <Th>{t('staff.subjects')}</Th>
-                <Th>{t('staff.classTeacherOf')}</Th>
-                <Th>{t('common.phone')}</Th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((s) => (
-                <tr key={s.id} className="hover:bg-surface-2">
-                  <Td>
-                    <div className="flex items-center gap-2.5">
-                      <Avatar name={s.name} size={32} />
-                      <div className="min-w-0">
-                        <div className="truncate font-medium text-ink">{s.name}</div>
-                        <div className="font-mono text-2xs text-ink-3">
-                          {locale === 'ta' ? 'சேர்ந்த நாள்' : 'Joined'}{' '}
-                          {formatDate(s.joined_on)}
-                        </div>
-                      </div>
+      {loading ? (
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-[148px]" />
+          ))}
+        </div>
+      ) : filtered.length === 0 ? (
+        <Card>
+          <Empty
+            title={t('common.noResults')}
+            hint={
+              locale === 'ta'
+                ? 'வேறு பெயரையோ பாடத்தையோ முயற்சிக்கவும்.'
+                : 'Try another name, subject or designation.'
+            }
+            icon={<GraduationCap size={26} />}
+            action={
+              query || role ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setQuery('')
+                    setRole('')
+                  }}
+                >
+                  {t('common.clearFilters')}
+                </Button>
+              ) : undefined
+            }
+          />
+        </Card>
+      ) : (
+        /* A staff directory is a set of people, not a spreadsheet — cards
+           carry a face, a role and a phone number in one glance, and they
+           reflow to one column on a phone without a horizontal scroll. */
+        <ul className="stagger-in grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {filtered.map((s) => (
+            <li key={s.id}>
+              <Card className="flex h-full flex-col gap-3 p-4">
+                <div className="flex items-start gap-3">
+                  <Avatar name={s.name} size={44} />
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-display text-[15px] font-semibold text-ink">
+                      {s.name}
                     </div>
-                  </Td>
-                  <Td>{locale === 'ta' ? s.designation_ta : s.designation}</Td>
-                  <Td>
-                    <div className="flex flex-wrap gap-1">
-                      {s.subjects.length === 0 ? (
-                        <span className="text-ink-3">—</span>
-                      ) : (
-                        s.subjects.map((sub) => (
-                          <Badge key={sub} tone="neutral">
-                            {sub}
-                          </Badge>
-                        ))
-                      )}
+                    <div className="truncate text-xs text-ink-2">
+                      {locale === 'ta' ? s.designation_ta : s.designation}
                     </div>
-                  </Td>
-                  <Td>
-                    <div className="flex flex-wrap gap-1">
-                      {s.class_teacher_of.length === 0 ? (
-                        <span className="text-ink-3">—</span>
-                      ) : (
-                        s.class_teacher_of.map((id) => (
-                          <Badge key={id} tone="forest">
-                            {sectionLabel[id] ?? id}
-                          </Badge>
-                        ))
-                      )}
+                    <div className="mt-0.5 text-2xs text-ink-3">
+                      {locale === 'ta' ? 'சேர்ந்த நாள்' : 'Joined'} {formatDate(s.joined_on)}
                     </div>
-                  </Td>
-                  <Td>
-                    <a
-                      href={`tel:${s.phone}`}
-                      className="flex items-center gap-1.5 font-mono text-xs text-forest hover:underline"
-                    >
-                      <Phone size={12} />
-                      {s.phone}
-                    </a>
-                  </Td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        )}
-      </Card>
+                  </div>
+                  {s.class_teacher_of.length > 0 && (
+                    <Badge tone="forest" className="shrink-0">
+                      {s.class_teacher_of.map((id) => sectionLabel[id] ?? id).join(', ')}
+                    </Badge>
+                  )}
+                </div>
+
+                {s.subjects.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {s.subjects.map((sub) => (
+                      <Badge key={sub} tone="neutral">
+                        {sub}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+
+                <a
+                  href={`tel:${s.phone}`}
+                  className="mt-auto inline-flex items-center gap-2 rounded-md bg-surface-2/70 px-3 py-2 font-mono text-xs text-forest ring-focus transition-colors hover:bg-surface-3"
+                >
+                  <Phone size={13} aria-hidden />
+                  {s.phone}
+                </a>
+              </Card>
+            </li>
+          ))}
+        </ul>
+      )}
+
     </>
   )
 }

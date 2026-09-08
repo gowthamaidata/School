@@ -79,24 +79,25 @@ export default function SettingsPage() {
                 ? 'ஆசிரியர்கள் விரும்பும் மொழியில் செயலியைப் பயன்படுத்தலாம்'
                 : 'Each user can run the app in the language they prefer'
             }
-            action={<Languages size={16} className="text-ink-3" />}
+            action={<Languages size={16} className="text-ink-3" aria-hidden />}
           />
           <div className="grid grid-cols-2 gap-2 p-3.5">
             {LOCALES.map((l) => (
               <button
                 key={l.code}
                 onClick={() => setLocale(l.code)}
-                className={`flex items-center justify-between rounded border px-3 py-3 text-left ring-focus transition-colors ${
+                className={`flex items-center justify-between rounded-md border px-3.5 py-3 text-left ring-focus transition-all duration-200 ease-soft ${
                   locale === l.code
-                    ? 'border-forest bg-forest-dim'
-                    : 'border-line bg-surface hover:bg-surface-2'
+                    ? 'border-forest/40 bg-forest-dim shadow-card'
+                    : 'border-line bg-surface hover:border-line-strong hover:bg-surface-2'
                 }`}
+                aria-pressed={locale === l.code}
               >
                 <div>
                   <div className="text-sm font-semibold text-ink">{l.native}</div>
-                  <div className="font-mono text-2xs uppercase text-ink-3">{l.code}</div>
+                  <div className="font-mono text-2xs uppercase tracking-wider text-ink-3">{l.code}</div>
                 </div>
-                {locale === l.code && <Check size={16} className="text-forest" />}
+                {locale === l.code && <Check size={16} className="text-forest" aria-hidden />}
               </button>
             ))}
           </div>
@@ -113,9 +114,9 @@ export default function SettingsPage() {
             }
             action={
               theme === 'dark' ? (
-                <Moon size={16} className="text-ink-3" />
+                <Moon size={16} className="text-ink-3" aria-hidden />
               ) : (
-                <Sun size={16} className="text-ink-3" />
+                <Sun size={16} className="text-ink-3" aria-hidden />
               )
             }
           />
@@ -124,19 +125,20 @@ export default function SettingsPage() {
               <button
                 key={mode}
                 onClick={() => setTheme(mode)}
-                className={`flex items-center justify-between rounded border px-3 py-3 text-left ring-focus transition-colors ${
+                className={`flex items-center justify-between rounded-md border px-3.5 py-3 text-left ring-focus transition-all duration-200 ease-soft ${
                   theme === mode
-                    ? 'border-forest bg-forest-dim'
-                    : 'border-line bg-surface hover:bg-surface-2'
+                    ? 'border-forest/40 bg-forest-dim shadow-card'
+                    : 'border-line bg-surface hover:border-line-strong hover:bg-surface-2'
                 }`}
+                aria-pressed={theme === mode}
               >
                 <div className="flex items-center gap-2">
-                  {mode === 'light' ? <Sun size={15} /> : <Moon size={15} />}
+                  {mode === 'light' ? <Sun size={15} aria-hidden /> : <Moon size={15} aria-hidden />}
                   <span className="text-sm font-semibold text-ink">
                     {mode === 'light' ? t('set.themeLight') : t('set.themeDark')}
                   </span>
                 </div>
-                {theme === mode && <Check size={16} className="text-forest" />}
+                {theme === mode && <Check size={16} className="text-forest" aria-hidden />}
               </button>
             ))}
           </div>
@@ -147,17 +149,17 @@ export default function SettingsPage() {
           <CardHeader
             title={t('set.installApp')}
             hint={t('set.installHelp')}
-            action={<Smartphone size={16} className="text-ink-3" />}
+            action={<Smartphone size={16} className="text-ink-3" aria-hidden />}
           />
           <div className="p-3.5">
             {installed ? (
-              <div className="flex items-center gap-2 rounded border border-forest/30 bg-forest-dim px-3 py-3 text-sm text-forest">
-                <Check size={16} />
+              <div className="flex items-center gap-2 rounded-md border border-leaf/25 bg-leaf-dim px-3.5 py-3 text-sm font-medium text-leaf">
+                <Check size={16} aria-hidden />
                 {locale === 'ta' ? 'செயலி நிறுவப்பட்டுள்ளது' : 'App is installed on this device'}
               </div>
             ) : installEvent ? (
               <Button onClick={install} className="w-full">
-                <Download size={15} />
+                <Download size={15} aria-hidden />
                 {t('set.installApp')}
               </Button>
             ) : (
@@ -192,14 +194,16 @@ export default function SettingsPage() {
         <Card>
           <CardHeader
             title={t('set.dataMode')}
-            action={<Database size={16} className="text-ink-3" />}
+            action={<Database size={16} className="text-ink-3" aria-hidden />}
           />
           <div className="space-y-3 p-3.5">
-            <div className="flex items-center justify-between rounded border border-line bg-surface-2 px-3 py-2.5">
+            <div className="well flex items-center justify-between px-3.5 py-3">
               <span className="text-sm text-ink-2">
                 {locale === 'ta' ? 'தற்போதைய முறை' : 'Current mode'}
               </span>
-              <Badge tone={IS_DEMO ? 'clay' : 'forest'}>{DATA_MODE}</Badge>
+              <Badge tone={IS_DEMO ? 'clay' : 'leaf'} dot>
+                {DATA_MODE}
+              </Badge>
             </div>
             <p className="text-xs leading-relaxed text-ink-2">
               {IS_DEMO
@@ -217,11 +221,11 @@ export default function SettingsPage() {
         <Card className="lg:col-span-2">
           <CardHeader
             title={t('set.schoolProfile')}
-            action={<School size={16} className="text-ink-3" />}
+            action={<School size={16} className="text-ink-3" aria-hidden />}
           />
           <dl className="divide-y divide-line">
             {schoolRows.map(([k, v]) => (
-              <div key={k} className="flex gap-4 px-4 py-2.5 text-sm">
+              <div key={k} className="flex gap-4 px-4 py-3 text-sm sm:px-5">
                 <dt className="w-40 shrink-0 text-ink-3">{k}</dt>
                 <dd className="min-w-0 flex-1 font-medium text-ink">{v}</dd>
               </div>

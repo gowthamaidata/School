@@ -83,20 +83,20 @@ function ReportCardInner() {
       <div className="no-print">
         <Link
           href={`/students/${student.id}`}
-          className="mb-3 inline-flex items-center gap-1.5 text-xs font-medium text-ink-3 hover:text-forest"
+          className="mb-4 inline-flex items-center gap-1.5 rounded-pill py-1 text-xs font-semibold text-ink-3 ring-focus transition-colors hover:text-forest"
         >
-          <ArrowLeft size={14} />
+          <ArrowLeft size={14} aria-hidden />
           {student.name}
         </Link>
 
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <div className="label-mono mb-1">{t('rc.progressReport')}</div>
-            <h1 className="font-serif text-2xl font-bold text-ink">{t('rc.title')}</h1>
+            <div className="label mb-1">{t('rc.progressReport')}</div>
+            <h1 className="font-display text-[28px] font-semibold tracking-[-0.02em] text-ink">{t('rc.title')}</h1>
           </div>
           <div className="flex items-end gap-2">
-            <div className="w-52">
-              <label htmlFor="report-exam" className="label-mono mb-1.5 block">{t('exam.examination')}</label>
+            <div className="w-60 sm:w-64">
+              <label htmlFor="report-exam" className="label mb-1.5 block">{t('exam.examination')}</label>
               <Select id="report-exam" value={examId} onChange={(e) => setExamId(e.target.value)}>
                 {exams.map((e) => (
                   <option key={e.id} value={e.id}>
@@ -106,7 +106,7 @@ function ReportCardInner() {
               </Select>
             </div>
             <Button onClick={() => window.print()}>
-              <Printer size={15} />
+              <Printer size={15} aria-hidden />
               {t('common.print')}
             </Button>
           </div>
@@ -114,15 +114,15 @@ function ReportCardInner() {
       </div>
 
       {/* ── The sheet ───────────────────────────────────── */}
-      <Card className="print-area mx-auto max-w-[820px] p-6 sm:p-9">
+      <Card className="print-area mx-auto max-w-[820px] overflow-hidden rounded-xl p-4 shadow-lift sm:p-9">
         {/* Letterhead */}
         <header className="border-b-2 border-forest pb-4 text-center">
           <div className="flex items-center justify-center gap-3">
-            <span className="flex h-12 w-12 items-center justify-center rounded bg-forest font-serif text-base font-bold text-white">
+            <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-forest font-display text-base font-bold text-white">
               {SCHOOL.logo_text}
             </span>
             <div>
-              <h2 className="font-serif text-xl font-bold leading-tight text-ink">
+              <h2 className="font-display text-xl font-bold leading-tight text-ink">
                 {locale === 'ta' ? SCHOOL.name_ta : SCHOOL.name}
               </h2>
               <p className="text-xs text-ink-2">{SCHOOL.address}</p>
@@ -137,7 +137,7 @@ function ReportCardInner() {
         </header>
 
         {/* Student meta */}
-        <section className="grid grid-cols-2 gap-x-8 gap-y-1.5 border-b border-line py-4 text-sm sm:grid-cols-3">
+        <section className="grid grid-cols-1 gap-x-8 gap-y-2.5 border-b border-line py-4 text-sm sm:grid-cols-3">
           {[
             [t('common.name'), locale === 'ta' ? student.name_ta : student.name],
             [t('stu.admissionNo'), student.admission_no],
@@ -147,15 +147,17 @@ function ReportCardInner() {
             [t('common.date'), formatDate(exam.end_date, 'long')],
           ].map(([k, v]) => (
             <div key={k}>
-              <div className="label-mono">{k}</div>
+              <div className="label">{k}</div>
               <div className="font-medium text-ink">{v}</div>
             </div>
           ))}
         </section>
 
-        {/* Marks table */}
-        <section className="py-4">
-          <table className="w-full border-collapse text-sm">
+        {/* Marks table — the sheet is designed for A4, so on a phone the
+            table scrolls inside its own container rather than pushing the
+            whole page sideways. Print is unaffected. */}
+        <section className="thin-scroll -mx-1 overflow-x-auto px-1 py-4">
+          <table className="w-full min-w-[30rem] border-collapse text-sm">
             <thead>
               <tr className="bg-forest text-white">
                 <th className="border border-forest px-3 py-2 text-left font-semibold">
@@ -195,7 +197,7 @@ function ReportCardInner() {
                       r.obtained === null
                         ? 'text-ink-3'
                         : r.passed
-                          ? 'text-forest'
+                          ? 'text-leaf'
                           : 'text-danger'
                     }`}
                   >
@@ -203,7 +205,7 @@ function ReportCardInner() {
                   </td>
                 </tr>
               ))}
-              <tr className="bg-surface-2 font-bold">
+              <tr className="bg-surface-2/70 font-bold">
                 <td className="border border-line px-3 py-2 text-ink">{t('rc.totalMarks')}</td>
                 <td className="tabular border border-line px-3 py-2 text-center text-ink">
                   {maxTotal}
@@ -216,7 +218,7 @@ function ReportCardInner() {
                 </td>
                 <td
                   className={`border border-line px-3 py-2 text-center text-xs ${
-                    report.passed ? 'text-forest' : 'text-danger'
+                    report.passed ? 'text-leaf' : 'text-danger'
                   }`}
                 >
                   {report.passed ? t('rc.pass') : t('rc.fail')}
@@ -238,8 +240,8 @@ function ReportCardInner() {
             },
           ].map((s) => (
             <div key={s.label} className="text-center">
-              <div className="label-mono">{s.label}</div>
-              <div className="tabular font-serif text-xl font-bold text-ink">{s.value}</div>
+              <div className="label">{s.label}</div>
+              <div className="tabular font-display text-xl font-semibold text-ink">{s.value}</div>
             </div>
           ))}
         </section>
@@ -247,12 +249,12 @@ function ReportCardInner() {
         {/* Attendance + remarks */}
         <section className="grid gap-4 py-4 sm:grid-cols-2">
           <div>
-            <div className="label-mono mb-1.5">{t('stu.attendanceRate')}</div>
+            <div className="label mb-1.5">{t('stu.attendanceRate')}</div>
             <div className="flex items-baseline gap-2">
-              <span className="tabular font-serif text-2xl font-bold text-ink">
+              <span className="tabular font-display text-2xl font-semibold text-ink">
                 {attendancePct}%
               </span>
-              <Badge tone={attendancePct >= 75 ? 'forest' : 'danger'}>
+              <Badge tone={attendancePct >= 75 ? 'leaf' : 'danger'} dot>
                 {attendancePct >= 75
                   ? locale === 'ta' ? 'போதுமானது' : 'Eligible'
                   : locale === 'ta' ? '75%க்குக் கீழ்' : 'Below 75%'}
@@ -264,7 +266,7 @@ function ReportCardInner() {
             </p>
           </div>
           <div>
-            <div className="label-mono mb-1.5">{t('rc.remarks')}</div>
+            <div className="label mb-1.5">{t('rc.remarks')}</div>
             <p className="min-h-[48px] border-b border-dashed border-line pb-2 text-sm leading-relaxed text-ink-2">
               {remark}
             </p>

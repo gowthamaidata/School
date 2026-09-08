@@ -50,6 +50,24 @@ const dict = {
   'common.phone': { en: 'Phone', ta: 'தொலைபேசி' },
   'common.noResults': { en: 'No results found', ta: 'முடிவுகள் இல்லை' },
   'common.optional': { en: 'optional', ta: 'விருப்பத்தேர்வு' },
+  'common.retry': { en: 'Try again', ta: 'மீண்டும் முயற்சி' },
+  'common.error': { en: 'Something went wrong', ta: 'ஏதோ தவறாகிவிட்டது' },
+  'common.errorHint': {
+    en: 'The data could not be loaded. Check your connection and try again.',
+    ta: 'தரவை ஏற்ற முடியவில்லை. இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.',
+  },
+  'common.clearFilters': { en: 'Clear filters', ta: 'வடிகட்டியை நீக்கு' },
+  'common.showingOf': { en: 'Showing {a}–{b} of {n}', ta: 'மொத்தம் {n}-ல் {a}–{b} காட்டப்படுகிறது' },
+  'common.previous': { en: 'Previous', ta: 'முந்தையது' },
+  'common.students': { en: 'students', ta: 'மாணவர்கள்' },
+  'common.sections': { en: 'sections', ta: 'வகுப்புகள்' },
+  'common.families': { en: 'families', ta: 'குடும்பங்கள்' },
+  'common.records': { en: 'records', ta: 'பதிவுகள்' },
+
+  // ── Time-of-day greeting ─────────────────────────────────
+  'greet.morning': { en: 'Good morning', ta: 'காலை வணக்கம்' },
+  'greet.afternoon': { en: 'Good afternoon', ta: 'மதிய வணக்கம்' },
+  'greet.evening': { en: 'Good evening', ta: 'மாலை வணக்கம்' },
 
   // ── Navigation ───────────────────────────────────────────
   'nav.dashboard': { en: 'Dashboard', ta: 'முகப்பு' },
@@ -64,6 +82,15 @@ const dict = {
   'nav.settings': { en: 'Settings', ta: 'அமைப்புகள்' },
   'nav.myChild': { en: 'My Child', ta: 'என் குழந்தை' },
   'nav.signOut': { en: 'Sign out', ta: 'வெளியேறு' },
+  'nav.more': { en: 'More', ta: 'மேலும்' },
+  'nav.menu': { en: 'Menu', ta: 'பட்டி' },
+  'nav.openMenu': { en: 'Open menu', ta: 'பட்டியைத் திற' },
+  'nav.searchHint': { en: 'Search or jump to…', ta: 'தேடு அல்லது செல்…' },
+  'nav.skipToContent': { en: 'Skip to content', ta: 'உள்ளடக்கத்திற்குச் செல்' },
+  'nav.groupDaily': { en: 'Every day', ta: 'தினசரி' },
+  'nav.groupAcademics': { en: 'Academics', ta: 'கல்வி' },
+  'nav.groupOffice': { en: 'Office', ta: 'அலுவலகம்' },
+  'nav.groupPeople': { en: 'People', ta: 'நபர்கள்' },
 
   // ── Roles ────────────────────────────────────────────────
   'role.principal': { en: 'Principal', ta: 'தலைமையாசிரியர்' },
@@ -105,6 +132,20 @@ const dict = {
   'dash.sendReminders': { en: 'Send reminders', ta: 'நினைவூட்டல் அனுப்பு' },
   'dash.notMarkedYet': { en: 'Attendance not marked', ta: 'வருகை பதிவு செய்யப்படவில்லை' },
   'dash.classesPending': { en: 'classes pending', ta: 'வகுப்புகள் நிலுவையில்' },
+  'dash.needsYou': { en: 'Needs you today', ta: 'இன்று உங்கள் கவனம் தேவை' },
+  'dash.allClear': { en: 'Nothing needs you right now', ta: 'இப்போது கவனம் தேவைப்படுவது எதுவும் இல்லை' },
+  'dash.allClearHint': {
+    en: 'Every class is marked and no family is overdue. The school is running clean today.',
+    ta: 'அனைத்து வகுப்புகளும் பதிவாகிவிட்டன, நிலுவைக் குடும்பங்களும் இல்லை.',
+  },
+  'dash.marked': { en: 'marked', ta: 'பதிவானது' },
+  'dash.pendingClasses': { en: 'Mark the remaining classes', ta: 'மீதமுள்ள வகுப்புகளைப் பதிவு செய்' },
+  'dash.remindFamilies': { en: 'Remind pending families', ta: 'நிலுவைக் குடும்பங்களுக்கு நினைவூட்டு' },
+  'dash.reviewStudents': { en: 'Review students below 75%', ta: '75%க்குக் கீழ் உள்ள மாணவர்களைப் பார்' },
+  'dash.attendanceByGrade': { en: 'By class, right now', ta: 'இப்போதைய வகுப்பு நிலை' },
+  'dash.target': { en: 'Target', ta: 'இலக்கு' },
+  'dash.collected': { en: 'Collected', ta: 'வசூலானது' },
+  'dash.yourClass': { en: 'Your class', ta: 'உங்கள் வகுப்பு' },
 
   // ── Attendance ───────────────────────────────────────────
   'att.title': { en: 'Mark attendance', ta: 'வருகை பதிவு செய்' },
@@ -122,6 +163,13 @@ const dict = {
   },
   'att.rollNo': { en: 'Roll', ta: 'எண்' },
   'att.percentThisTerm': { en: 'This term', ta: 'இப்பருவம்' },
+  'att.searchStudent': { en: 'Find a student in this class', ta: 'இந்த வகுப்பில் மாணவரைத் தேடு' },
+  'att.remaining': { en: 'still to mark', ta: 'பதிவு செய்ய மீதம்' },
+  'att.markRestPresent': { en: 'Mark the rest present', ta: 'மீதமுள்ளோர் வருகை' },
+  'att.readyToSubmit': { en: 'Ready to submit', ta: 'சமர்ப்பிக்கத் தயார்' },
+  'att.everyoneMarked': { en: 'Everyone is marked', ta: 'அனைவரும் பதிவாகிவிட்டனர்' },
+  'att.clearMarks': { en: 'Start over', ta: 'மீண்டும் தொடங்கு' },
+  'att.tookSeconds': { en: 'Took {n}s', ta: '{n} வினாடி' },
   'att.offlineNote': {
     en: 'Saved on this device. Will sync when you are back online.',
     ta: 'இச்சாதனத்தில் சேமிக்கப்பட்டது. இணையம் வந்ததும் ஒத்திசைக்கப்படும்.',

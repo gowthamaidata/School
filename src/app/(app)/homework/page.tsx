@@ -9,8 +9,8 @@ import { repo, SECTIONS, staffById, subjectById, subjectsForStandard } from '@/l
 import type { Homework, HomeworkCoverageRow } from '@/lib/data/types'
 import { formatDate, todayISO } from '@/lib/utils'
 import {
-  Badge, Button, Card, CardHeader, ConfirmDialog, Empty, Field, Input, PageHeader,
-  Select, Skeleton, Textarea, Toast,
+  Badge, Button, Card, CardHeader, ConfirmDialog, Empty, Field, IconButton, Input,
+  PageHeader, Select, Skeleton, Textarea, Toast,
 } from '@/components/ui'
 
 /** Tomorrow in YYYY-MM-DD — the default due date, because it nearly always is. */
@@ -86,20 +86,26 @@ export default function HomeworkPage() {
   async function save() {
     if (!user || !sectionId || !subjectId) return
     setSaving(true)
-    await repo.saveHomework({
-      sectionId,
-      subjectId,
-      title: title.trim(),
-      description: body.trim(),
-      dueOn,
-      assignedBy: user.id,
-    })
-    setSaving(false)
-    setTitle('')
-    setBody('')
-    setDueOn(tomorrowISO())
-    setToast(`${t('hw.posted')} · ${section?.label ?? ''}`)
-    load()
+    try {
+      await repo.saveHomework({
+        sectionId,
+        subjectId,
+        title: title.trim(),
+        description: body.trim(),
+        dueOn,
+        assignedBy: user.id,
+      })
+      setTitle('')
+      setBody('')
+      setDueOn(tomorrowISO())
+      setToast(`${t('hw.posted')} · ${t('common.class')} ${section?.label ?? ''}`)
+      load()
+    } catch (err) {
+      console.error('[homework] save failed', err)
+      setToast(t('common.error'))
+    } finally {
+      setSaving(false)
+    }
   }
 
   async function remove(id: string) {
@@ -134,14 +140,18 @@ export default function HomeworkPage() {
       {/* ── Principal's view: who has not posted today ──── */}
       {showCoverage && (
         <Card
-          className={`mb-4 flex flex-wrap items-center gap-3 p-3.5 ${
-            pendingClasses.length > 0 ? 'border-clay/30 bg-clay-dim' : ''
+          className={`mb-4 flex flex-wrap items-center gap-3 p-4 ${
+            pendingClasses.length > 0 ? 'border-clay/25 bg-clay-dim' : ''
           }`}
         >
-          <TriangleAlert
-            size={18}
-            className={`shrink-0 ${pendingClasses.length > 0 ? 'text-clay' : 'text-forest'}`}
-          />
+          <span
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-pill ${
+              pendingClasses.length > 0 ? 'bg-peach/50 text-clay' : 'bg-mint/45 text-leaf'
+            }`}
+            aria-hidden
+          >
+            <TriangleAlert size={18} />
+          </span>
           <div className="min-w-0 flex-1">
             <div className="text-sm font-semibold text-ink">{t('hw.coverage')}</div>
             <div className="text-xs text-ink-2">
@@ -159,7 +169,7 @@ export default function HomeworkPage() {
               )}
             </div>
           </div>
-          <Badge tone={pendingClasses.length > 0 ? 'clay' : 'forest'}>
+          <Badge tone={pendingClasses.length > 0 ? 'clay' : 'leaf'} dot>
             {coverage.length - pendingClasses.length}/{coverage.length}
           </Badge>
         </Card>
@@ -215,9 +225,9 @@ export default function HomeworkPage() {
               <Input type="date" value={dueOn} min={today} onChange={(e) => setDueOn(e.target.value)} />
             </Field>
 
-            <Button onClick={save} disabled={!canSave || saving} className="w-full">
-              <Plus size={15} />
-              {saving ? t('common.saving') : t('hw.assign')}
+            <Button onClick={save} disabled={!canSave} loading={saving} className="w-full">
+              <Plus size={15} aria-hidden />
+              {t('hw.assign')}
             </Button>
           </div>
         </Card>
@@ -228,7 +238,7 @@ export default function HomeworkPage() {
             <CardHeader
               title={t('hw.todaysWork')}
               hint={section ? `${t('common.class')} ${section.label} · ${formatDate(today, 'long')}` : undefined}
-              action={<Badge tone={todaysItems.length > 0 ? 'forest' : 'neutral'}>{todaysItems.length}</Badge>}
+              action={<Badge tone={todaysItems.length > 0 ? 'leaf' : 'neutral'}>{todaysItems.length}</Badge>}
             />
             {loading ? (
               <div className="space-y-2 p-3">
@@ -237,7 +247,15 @@ export default function HomeworkPage() {
                 ))}
               </div>
             ) : todaysItems.length === 0 ? (
-              <Empty title={t('hw.noneToday')} icon={<NotebookPen size={22} />} />
+              <Empty
+                title={t('hw.noneToday')}
+                hint={
+                  locale === 'ta'
+                    ? 'இடதுபுறம் உள்ள படிவத்தில் இன்றைய பணியைப் பதிவிடுங்கள்.'
+                    : 'Use the composer to post today’s work — parents see it instantly.'
+                }
+                icon={<NotebookPen size={26} />}
+              />
             ) : (
               <div className="divide-y divide-line">
                 {todaysItems.map((h) => (
@@ -304,9 +322,19 @@ function HomeworkRow({
         : `${t('hw.dueOn')} ${formatDate(hw.due_on)}`
 
   return (
-    <div className={`group flex items-start gap-3 px-4 py-3 ${muted ? 'opacity-80' : ''}`}>
-      <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded bg-forest-dim text-forest">
-        <BookOpen size={15} />
+    <div
+      /* Earlier work is de-emphasised by its section heading and by the
+         quieter icon, not by dimming the whole row — blanket opacity took
+         its text under the contrast floor. */
+      className="group flex items-start gap-3 px-4 py-3.5 transition-colors hover:bg-surface-2/50 sm:px-5"
+    >
+      <span
+        className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-pill ${
+          muted ? 'bg-surface-2 text-ink-3' : 'bg-lavender/35 text-forest-ink'
+        }`}
+        aria-hidden
+      >
+        <BookOpen size={16} />
       </span>
 
       <div className="min-w-0 flex-1">
@@ -315,29 +343,30 @@ function HomeworkRow({
           <h3 className="text-sm font-semibold leading-snug text-ink">{hw.title}</h3>
         </div>
 
-        <p className="mt-1 text-xs leading-relaxed text-ink-2">{hw.description}</p>
+        <p className="mt-1.5 text-[13px] leading-relaxed text-ink-2">{hw.description}</p>
 
-        <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-2xs text-ink-3">
+        <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-2xs text-ink-3">
           <span>{formatDate(hw.assigned_on)}</span>
-          <span>·</span>
+          <span aria-hidden>·</span>
           <Badge tone={dueTone}>{dueLabel}</Badge>
           {teacher && (
             <>
-              <span>·</span>
+              <span aria-hidden>·</span>
               <span className="truncate">{teacher.name}</span>
             </>
           )}
         </div>
       </div>
 
-      <button
+      <IconButton
+        label={`${t('hw.delete')} — ${hw.title}`}
+        tone="danger"
+        size="sm"
         onClick={onDelete}
-        className="shrink-0 rounded p-1.5 text-ink-3 ring-focus hover:bg-surface-2 hover:text-danger"
-        title={t('hw.delete')}
-        aria-label={t('hw.delete')}
+        className="opacity-100 transition-opacity focus-visible:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
       >
-        <Trash2 size={15} />
-      </button>
+        <Trash2 size={15} aria-hidden />
+      </IconButton>
     </div>
   )
 }

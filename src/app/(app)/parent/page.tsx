@@ -12,7 +12,7 @@ import type {
 } from '@/lib/data/types'
 import { formatDate, formatINR, gradeFor, ordinal, todayISO } from '@/lib/utils'
 import {
-  Badge, Button, Card, CardHeader, Empty, Modal, PageHeader, Progress, Skeleton, Stat,
+  Avatar, Badge, Button, Card, CardHeader, Empty, Modal, Progress, Skeleton, Stat,
 } from '@/components/ui'
 
 type Report = NonNullable<Awaited<ReturnType<typeof repo.getReportCard>>>
@@ -92,21 +92,46 @@ export default function ParentPage() {
 
   return (
     <>
-      <PageHeader
-        eyebrow={`${t('par.greeting')}, ${student.father_name.split(' ')[0]}`}
-        title={locale === 'ta' ? student.name_ta : student.name}
-        description={`${t('common.class')} ${section?.label ?? ''} · ${student.admission_no} · ${
-          locale === 'ta' ? SCHOOL.name_ta : SCHOOL.name
-        }`}
-      />
+      {/* ── Who this is about. A parent opens the app for one child, so the
+             child — not the school — is the header. ── */}
+      <section className="mb-5 overflow-hidden rounded-2xl border border-line bg-surface p-5 shadow-card sm:mb-6 sm:p-6">
+        <div className="relative flex flex-wrap items-center gap-4">
+          <div
+            className="pointer-events-none absolute -right-20 -top-24 h-56 w-56 rounded-full bg-peach/25 blur-3xl"
+            aria-hidden
+          />
+          <Avatar name={student.name} size={64} ring />
+          <div className="relative min-w-0 flex-1">
+            <div className="label mb-1">
+              {t('par.greeting')}, {student.father_name.split(' ')[0]}
+            </div>
+            <h1 className="font-display text-[26px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[30px]">
+              {locale === 'ta' ? student.name_ta : student.name}
+            </h1>
+            <p className="mt-1 text-sm text-ink-2">
+              {t('common.class')} {section?.label ?? ''} ·{' '}
+              <span className="font-mono text-xs">{student.admission_no}</span> ·{' '}
+              {locale === 'ta' ? SCHOOL.name_ta : SCHOOL.name}
+            </p>
+          </div>
+          {report && (
+            <Link href={`/report-card/${student.id}?exam=${exam?.id}`} className="relative shrink-0">
+              <Button variant="outline" size="sm">
+                <FileText size={14} aria-hidden />
+                {t('par.viewReportCard')}
+              </Button>
+            </Link>
+          )}
+        </div>
+      </section>
 
       {/* ── Three things a parent actually checks ──────── */}
       <div className="grid gap-3 sm:grid-cols-3">
         <Stat
           label={t('par.attendanceSummary')}
           value={`${attPct}%`}
-          tone={attPct >= 90 ? 'forest' : attPct >= 75 ? 'clay' : 'danger'}
-          icon={<CalendarCheck2 size={16} />}
+          tone={attPct >= 90 ? 'leaf' : attPct >= 75 ? 'clay' : 'danger'}
+          icon={<CalendarCheck2 size={17} />}
           sub={
             <>
               <span className="tabular">
@@ -115,8 +140,9 @@ export default function ParentPage() {
               </span>
               <Progress
                 value={attPct}
-                tone={attPct >= 75 ? 'forest' : 'danger'}
-                className="mt-1.5"
+                tone={attPct >= 75 ? 'leaf' : 'danger'}
+                className="mt-2"
+                label={t('par.attendanceSummary')}
               />
             </>
           }
@@ -124,15 +150,13 @@ export default function ParentPage() {
 
         <Stat
           label={t('par.feeDue')}
-          value={outstanding > 0 ? formatINR(outstanding) : t('par.noDues')}
-          tone={outstanding > 0 ? 'danger' : 'forest'}
-          icon={<Wallet size={16} />}
+          value={outstanding > 0 ? formatINR(outstanding) : formatINR(0)}
+          tone={outstanding > 0 ? 'danger' : 'leaf'}
+          icon={<Wallet size={17} />}
           sub={
-            nextDue
+            outstanding > 0 && nextDue
               ? `${t('fee.term')} ${nextDue.term} · ${t('fee.dueDate')} ${formatDate(nextDue.due_date)}`
-              : locale === 'ta'
-                ? 'நன்றி'
-                : 'Thank you'
+              : t('par.noDues')
           }
         />
 
@@ -140,9 +164,9 @@ export default function ParentPage() {
           label={t('par.latestMarks')}
           value={report ? `${report.percentage}%` : '—'}
           tone={
-            !report ? 'neutral' : report.percentage >= 75 ? 'forest' : report.percentage >= 50 ? 'clay' : 'danger'
+            !report ? 'neutral' : report.percentage >= 75 ? 'leaf' : report.percentage >= 50 ? 'clay' : 'danger'
           }
-          icon={<FileText size={16} />}
+          icon={<FileText size={17} />}
           sub={
             report
               ? `${t('exam.grade')} ${report.grade} · ${t('exam.rank')} ${ordinal(report.rank)}/${report.classSize}`
@@ -154,8 +178,10 @@ export default function ParentPage() {
       </div>
 
       {outstanding > 0 && (
-        <Card className="mt-3 flex flex-wrap items-center gap-3 border-clay/30 bg-clay-dim p-3.5">
-          <Wallet size={18} className="shrink-0 text-clay" />
+        <Card className="mt-3 flex flex-wrap items-center gap-3 border-clay/25 bg-clay-dim p-4">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-pill bg-peach/50 text-clay" aria-hidden>
+            <Wallet size={18} />
+          </span>
           <div className="min-w-0 flex-1">
             <div className="text-sm font-semibold text-ink">
               {formatINR(outstanding)} {t('par.feeDue').toLowerCase()}
@@ -206,14 +232,22 @@ export default function ParentPage() {
           title={t('par.homework')}
           hint={`${t('common.class')} ${section?.label ?? ''} · ${formatDate(todayISO(), 'long')}`}
           action={
-            <Badge tone={todaysHomework.length > 0 ? 'forest' : 'neutral'}>
+            <Badge tone={todaysHomework.length > 0 ? 'leaf' : 'neutral'}>
               {todaysHomework.length} {t('common.today').toLowerCase()}
             </Badge>
           }
         />
 
         {todaysHomework.length === 0 ? (
-          <Empty title={t('hw.noneToday')} icon={<NotebookPen size={22} />} />
+          <Empty
+            title={t('hw.noneToday')}
+            hint={
+              locale === 'ta'
+                ? 'ஆசிரியர் பதிவிட்டவுடன் இங்கே தெரியும்.'
+                : 'It appears here the moment the teacher posts it.'
+            }
+            icon={<NotebookPen size={26} />}
+          />
         ) : (
           <div className="divide-y divide-line">
             {todaysHomework.map((h) => (
@@ -224,7 +258,7 @@ export default function ParentPage() {
 
         {earlierHomework.length > 0 && (
           <div className="border-t border-line">
-            <div className="label-mono px-4 pt-3">{t('hw.recent')}</div>
+            <div className="label px-4 pt-3.5 sm:px-5">{t('hw.recent')}</div>
             <div className="divide-y divide-line">
               {earlierHomework.slice(0, 5).map((h) => (
                 <ParentHomeworkRow key={h.id} hw={h} muted />
@@ -234,7 +268,7 @@ export default function ParentPage() {
         )}
       </Card>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+      <div className="mt-4 grid items-start gap-4 lg:grid-cols-2">
         {/* ── Latest results ──────────────────────────── */}
         <Card>
           <CardHeader
@@ -262,8 +296,10 @@ export default function ParentPage() {
                       </div>
                       <Progress
                         value={pctv}
-                        tone={pctv >= 60 ? 'forest' : pctv >= 35 ? 'clay' : 'danger'}
-                        className="mt-1.5"
+                        tone={pctv >= 60 ? 'leaf' : pctv >= 35 ? 'clay' : 'danger'}
+                        size="sm"
+                        className="mt-2"
+                        label={locale === 'ta' ? r.subject.name_ta : r.subject.name}
                       />
                     </div>
                     <div className="text-right">
@@ -271,16 +307,16 @@ export default function ParentPage() {
                         {r.obtained ?? t('exam.absent')}
                         <span className="text-2xs font-normal text-ink-3">/{r.max}</span>
                       </div>
-                      <Badge tone={r.obtained === null ? 'neutral' : r.passed ? 'forest' : 'danger'}>
+                      <Badge tone={r.obtained === null ? 'neutral' : r.passed ? 'leaf' : 'danger'}>
                         {r.obtained === null ? '—' : gradeFor(pctv)}
                       </Badge>
                     </div>
                   </div>
                 )
               })}
-              <div className="flex items-center justify-between bg-surface-2 px-4 py-3">
+              <div className="flex items-center justify-between bg-surface-2/70 px-4 py-3.5">
                 <span className="text-sm font-semibold text-ink">{t('rc.totalMarks')}</span>
-                <span className="tabular font-serif text-lg font-bold text-ink">
+                <span className="tabular font-display text-xl font-semibold text-ink">
                   {report.total}
                   <span className="text-xs font-normal text-ink-3">/{report.maxTotal}</span>
                 </span>
@@ -304,9 +340,9 @@ export default function ParentPage() {
                     <div className="text-[13px] font-medium text-ink">
                       {t('fee.term')} {f.term}
                     </div>
-                    <div className="font-mono text-2xs text-ink-3">
+                    <div className="text-2xs text-ink-3">
                       {t('fee.dueDate')} {formatDate(f.due_date)}
-                      {f.receipt_no && ` · ${f.receipt_no}`}
+                      {f.receipt_no && <span className="font-mono"> · {f.receipt_no}</span>}
                     </div>
                   </div>
                   <div className="text-right">
@@ -316,7 +352,7 @@ export default function ParentPage() {
                     <Badge
                       tone={
                         f.status === 'paid'
-                          ? 'forest'
+                          ? 'leaf'
                           : f.status === 'partial'
                             ? 'clay'
                             : f.status === 'overdue'
@@ -338,7 +374,9 @@ export default function ParentPage() {
               {news.map((a) => (
                 <div key={a.id} className="px-4 py-3">
                   <div className="flex items-start gap-2.5">
-                    <Megaphone size={14} className="mt-0.5 shrink-0 text-ink-3" />
+                    <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-pill bg-sky/35 text-info" aria-hidden>
+                      <Megaphone size={13} />
+                    </span>
                     <div className="min-w-0">
                       <div className="text-[13px] font-semibold leading-snug text-ink">
                         {a.title}
@@ -346,9 +384,7 @@ export default function ParentPage() {
                       <p className="mt-1 line-clamp-3 text-xs leading-relaxed text-ink-2">
                         {a.body}
                       </p>
-                      <div className="mt-1.5 font-mono text-2xs text-ink-3">
-                        {formatDate(a.sent_at, 'long')}
-                      </div>
+                      <div className="mt-1.5 text-2xs text-ink-3">{formatDate(a.sent_at, 'long')}</div>
                     </div>
                   </div>
                 </div>
@@ -369,7 +405,7 @@ function ParentHomeworkRow({ hw, muted = false }: { hw: Homework; muted?: boolea
 
   // Work from earlier in the week has already been handed in; marking all of
   // it red would train a parent to ignore the colour entirely.
-  const dueTone = muted ? 'neutral' : hw.due_on < today ? 'danger' : hw.due_on === today ? 'clay' : 'forest'
+  const dueTone = muted ? 'neutral' : hw.due_on < today ? 'danger' : hw.due_on === today ? 'clay' : 'leaf'
   const dueLabel =
     !muted && hw.due_on < today
       ? t('hw.overdue')
@@ -378,17 +414,22 @@ function ParentHomeworkRow({ hw, muted = false }: { hw: Homework; muted?: boolea
         : `${t('hw.dueOn')} ${formatDate(hw.due_on)}`
 
   return (
-    <div className={`flex items-start gap-3 px-4 py-3 ${muted ? 'opacity-75' : ''}`}>
-      <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded bg-forest-dim text-forest">
-        <BookOpen size={15} />
+    <div className="flex items-start gap-3 px-4 py-3.5 sm:px-5">
+      <span
+        className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-pill ${
+          muted ? 'bg-surface-2 text-ink-3' : 'bg-lavender/35 text-forest-ink'
+        }`}
+        aria-hidden
+      >
+        <BookOpen size={16} />
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
           <Badge tone="info">{locale === 'ta' ? subject?.name_ta : subject?.name}</Badge>
           <h3 className="text-sm font-semibold leading-snug text-ink">{hw.title}</h3>
         </div>
-        <p className="mt-1 text-xs leading-relaxed text-ink-2">{hw.description}</p>
-        <div className="mt-1.5 flex flex-wrap items-center gap-2 font-mono text-2xs text-ink-3">
+        <p className="mt-1.5 text-[13px] leading-relaxed text-ink-2">{hw.description}</p>
+        <div className="mt-2 flex flex-wrap items-center gap-2 text-2xs text-ink-3">
           <span>
             {t('hw.assignedOn')} {formatDate(hw.assigned_on)}
           </span>

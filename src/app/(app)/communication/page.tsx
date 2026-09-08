@@ -131,7 +131,7 @@ export default function CommunicationPage() {
             </Field>
 
             <div>
-              <span className="label-mono mb-1.5 block">
+              <span className="label mb-1.5 block">
                 {locale === 'ta' ? 'அனுப்பும் வழி' : 'Channels'}
               </span>
               <div className="flex flex-wrap gap-2">
@@ -142,13 +142,13 @@ export default function CommunicationPage() {
                       key={c.id}
                       onClick={() => toggleChannel(c.id)}
                       aria-pressed={on}
-                      className={`flex items-center gap-1.5 rounded border px-2.5 py-1.5 text-xs font-medium ring-focus transition-colors ${
+                      className={`flex items-center gap-1.5 rounded-pill border px-3 py-1.5 text-xs font-semibold ring-focus transition-all duration-200 ease-soft ${
                         on
-                          ? 'border-forest bg-forest-dim text-forest'
-                          : 'border-line bg-surface text-ink-3 hover:text-ink'
+                          ? 'border-forest/40 bg-forest-dim text-forest-2'
+                          : 'border-line bg-surface text-ink-3 hover:border-line-strong hover:text-ink'
                       }`}
                     >
-                      {on ? <Check size={13} /> : <Smartphone size={13} />}
+                      {on ? <Check size={13} aria-hidden /> : <Smartphone size={13} aria-hidden />}
                       {t(c.labelKey)}
                     </button>
                   )
@@ -156,16 +156,16 @@ export default function CommunicationPage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between rounded border border-line bg-surface-2 px-3 py-2.5">
+            <div className="well flex items-center justify-between px-3.5 py-3">
               <span className="text-xs text-ink-2">{t('msg.recipients')}</span>
-              <span className="tabular font-serif text-lg font-bold text-ink">
+              <span className="tabular font-display text-xl font-semibold text-ink">
                 {recipientCount}
               </span>
             </div>
 
-            <Button onClick={send} disabled={!canSend || sending} className="w-full">
-              <Send size={15} />
-              {sending ? t('common.saving') : t('common.send')}
+            <Button onClick={send} disabled={!canSend} loading={sending} className="w-full">
+              <Send size={15} aria-hidden />
+              {t('common.send')}
             </Button>
           </div>
         </Card>
@@ -180,8 +180,11 @@ export default function CommunicationPage() {
                 return (
                   <Card key={a.id} className="p-4">
                     <div className="flex items-start gap-3">
-                      <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded bg-forest-dim text-forest">
-                        <Megaphone size={15} />
+                      <span
+                        className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-pill bg-lavender/35 text-forest-2"
+                        aria-hidden
+                      >
+                        <Megaphone size={16} />
                       </span>
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
@@ -192,7 +195,7 @@ export default function CommunicationPage() {
                             </Badge>
                           )}
                           {a.channels.map((c) => (
-                            <Badge key={c} tone={c === 'whatsapp' ? 'forest' : 'neutral'}>
+                            <Badge key={c} tone={c === 'whatsapp' ? 'leaf' : 'neutral'}>
                               {c === 'whatsapp' ? 'WhatsApp' : c === 'sms' ? 'SMS' : 'App'}
                             </Badge>
                           ))}
@@ -200,24 +203,29 @@ export default function CommunicationPage() {
 
                         <p className="mt-1.5 text-[13px] leading-relaxed text-ink-2">{a.body}</p>
 
-                        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 font-mono text-2xs text-ink-3">
+                        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-2xs text-ink-3">
                           <span>{formatDate(a.sent_at, 'long')}</span>
-                          {sender && <span>· {sender.name}</span>}
+                          {sender && <span>{sender.name}</span>}
                           <span className="tabular">
-                            · {a.recipients} {t('msg.recipients')}
+                            {a.recipients} {t('msg.recipients')}
                           </span>
-                          <span className="tabular text-forest">
-                            · {a.delivered} {t('msg.delivered')}
-                          </span>
-                          <span className="tabular">
-                            · {a.read} {t('msg.read')}
+                          <span className="tabular text-leaf-ink">
+                            {a.delivered} {t('msg.delivered')}
                           </span>
                         </div>
 
-                        <div className="mt-2 flex items-center gap-2">
-                          <Progress value={readPct} className="flex-1" />
-                          <span className="tabular font-mono text-2xs text-ink-3">
-                            {Math.round(readPct)}%
+                        {/* Read-through is the number that tells you whether the
+                            message actually landed, so it gets the bar. */}
+                        <div className="mt-2.5 flex items-center gap-2.5">
+                          <Progress
+                            value={readPct}
+                            tone={readPct >= 60 ? 'leaf' : 'clay'}
+                            size="sm"
+                            className="flex-1"
+                            label={`${a.title} — ${t('msg.read')}`}
+                          />
+                          <span className="tabular text-2xs font-semibold text-ink-2">
+                            {Math.round(readPct)}% {t('msg.read')}
                           </span>
                         </div>
                       </div>

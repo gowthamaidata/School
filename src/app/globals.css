@@ -3,47 +3,68 @@
 @tailwind utilities;
 
 /* ═══════════════════════════════════════════════════════════
-   DESIGN SYSTEM — "Soft Pastel Studio"
-   Buttery cream ground · mint/lavender/peach/sky accents ·
-   rounded everything · airy diffused shadows · friendly type
+   PALLI DESIGN SYSTEM — "Softly, for school"
+
+   Ground        warm off-white paper, never pure white
+   Accents       sage-mint, lavender, sky, peach, butter, blush
+   Geometry      graded radii — crisp controls, soft containers
+   Depth         diffused low-contrast shadows, no heavy borders
+   Motion        one soft curve, 150–350ms, always interruptible
+
+   Colour is used to carry meaning (present / late / absent /
+   pending / paid), not to decorate. Everything below is a token;
+   components never hard-code a colour.
    ═══════════════════════════════════════════════════════════ */
 
-/* Colours are stored as space-separated RGB channels, not hex, so Tailwind
-   can compose opacity modifiers like `bg-forest/40` against them.
-   Historical token names (forest/clay/danger/info) are kept so every
-   existing component keeps working — only their values changed, from a
-   forest-green/clay system to a soft pastel one. */
 :root {
   color-scheme: light;
 
-  /* Surfaces — warm off-white/cream base with soft cloud cards */
-  --paper: 253 250 244;
-  --surface: 255 255 255;
-  --surface-2: 245 240 250;
+  /* ── Surfaces ─────────────────────────────────────────── */
+  --paper: 253 252 248;         /* page ground, warm off-white */
+  --surface: 255 255 255;       /* raised card */
+  --surface-2: 246 244 250;     /* quiet fill: table heads, inputs, chips */
+  --surface-3: 239 236 246;     /* pressed / hover on quiet fill */
 
-  /* Structure — soft, barely-there lines instead of hairlines */
-  --line: 233 227 240;
-  --line-strong: 214 205 230;
+  /* ── Structure — soft, barely-there lines ─────────────── */
+  --line: 234 230 242;
+  --line-strong: 214 207 229;
 
-  /* Ink — warm charcoal, never pure black (keeps things gentle) */
-  --ink: 51 46 66;
-  --ink-2: 100 92 122;
-  --ink-3: 148 140 168;
+  /* ── Ink — warm charcoal, never pure black.
+        ink-2 and ink-3 are tuned to clear 4.5:1 on both --paper
+        and --surface so supporting text stays readable. ────── */
+  --ink: 41 37 53;
+  --ink-2: 92 85 112;
+  --ink-3: 105 98 129;
 
-  /* Brand — soft lavender-violet standing in for "forest" */
-  --forest: 138 122 224;
-  --forest-2: 116 98 214;
-  --forest-dim: 232 227 252;
+  /* ── Semantic roles ───────────────────────────────────── */
+  /* brand + positive: deep sage-violet that reads calm, not corporate */
+  --forest: 108 92 196;
+  --forest-2: 88 72 178;
+  --forest-dim: 237 233 253;
+  /* attention / in-progress: warm clay */
+  --clay: 201 128 15;
+  --clay-dim: 253 238 214;
+  /* negative: muted crimson */
+  --danger: 198 59 78;
+  --danger-dim: 253 230 230;
+  /* informational: deep sky */
+  --info: 42 124 178;
+  --info-dim: 224 240 250;
+  /* success in charts and pills, distinct from brand violet */
+  --leaf: 14 155 114;
+  --leaf-dim: 219 243 233;
 
-  /* Accents — pastel peach ("clay"), pastel coral ("danger"), pastel sky ("info") */
-  --clay: 214 140 90;
-  --clay-dim: 253 233 217;
-  --danger: 224 120 120;
-  --danger-dim: 253 227 227;
-  --info: 90 165 214;
-  --info-dim: 222 240 251;
+  /* Text weights for label-sized type sitting ON a -dim wash.
+     The mark colours above are tuned for fills and strokes; at 11px on a
+     pale wash they fall under 4.5:1, so pills and inline status text use
+     these darker steps of the same hues instead. */
+  --forest-ink: 88 72 178;
+  --leaf-ink: 8 111 82;
+  --clay-ink: 138 90 12;
+  --danger-ink: 168 50 63;
+  --info-ink: 30 95 140;
 
-  /* Pastel accent family for chips, illustrations, status dots */
+  /* ── Pastel accent family — washes only, never text ───── */
   --mint: 168 219 197;
   --lavender: 196 186 240;
   --peach: 247 202 173;
@@ -51,36 +72,50 @@
   --butter: 247 224 150;
   --blush: 244 191 204;
 
-  --font-sans: 'Nunito', 'Quicksand', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-display: 'Quicksand', 'Nunito', system-ui, sans-serif;
+  /* ── Type ─────────────────────────────────────────────── */
+  --font-sans: 'Outfit', 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Outfit', 'Quicksand', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
-  --font-tamil: 'Noto Sans Tamil', 'Nunito', system-ui, sans-serif;
+  --font-tamil: 'Noto Sans Tamil', 'Outfit', system-ui, sans-serif;
+
+  /* ── Layout rhythm ────────────────────────────────────── */
+  --shell-nav: 16rem;           /* desktop sidebar width */
+  --tabbar: 4.25rem;            /* mobile bottom nav height */
 }
 
 .dark {
   color-scheme: dark;
 
-  --paper: 30 27 42;
-  --surface: 40 36 54;
-  --surface-2: 48 43 64;
+  --paper: 24 22 34;
+  --surface: 33 30 46;
+  --surface-2: 42 38 58;
+  --surface-3: 52 47 71;
 
-  --line: 60 54 78;
-  --line-strong: 76 68 98;
+  --line: 55 50 74;
+  --line-strong: 74 67 98;
 
-  --ink: 236 232 246;
-  --ink-2: 196 188 218;
-  --ink-3: 150 142 174;
+  --ink: 240 237 249;
+  --ink-2: 191 184 212;
+  --ink-3: 152 145 175;
 
-  --forest: 176 162 244;
-  --forest-2: 196 184 250;
-  --forest-dim: 58 51 84;
+  --forest: 156 136 238;
+  --forest-2: 184 168 248;
+  --forest-dim: 54 47 82;
+  --clay: 214 154 46;
+  --clay-dim: 62 47 26;
+  --danger: 238 113 130;
+  --danger-dim: 66 34 40;
+  --info: 87 169 226;
+  --info-dim: 26 46 64;
+  --leaf: 47 181 140;
+  --leaf-dim: 26 56 46;
 
-  --clay: 232 172 130;
-  --clay-dim: 62 46 38;
-  --danger: 236 150 150;
-  --danger-dim: 66 40 42;
-  --info: 138 196 236;
-  --info-dim: 34 52 68;
+  /* On dark, the wash is the dark step and the text is the light one. */
+  --forest-ink: 184 168 248;
+  --leaf-ink: 92 214 170;
+  --clay-ink: 232 176 84;
+  --danger-ink: 244 140 154;
+  --info-ink: 124 190 236;
 
   --mint: 120 180 156;
   --lavender: 162 150 214;
@@ -103,6 +138,7 @@ html[lang='ta'] select,
 html[lang='ta'] textarea {
   font-family: var(--font-tamil);
 }
+html[lang='ta'] .font-display,
 html[lang='ta'] .font-serif {
   font-family: var(--font-tamil);
   font-weight: 700;
@@ -116,39 +152,53 @@ body {
   background: rgb(var(--paper));
   color: rgb(var(--ink));
   font-family: var(--font-sans);
-  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   overscroll-behavior-y: none;
 }
 
-/* Soft pastel glow — replaces the old paper grain with three diffused
-   radial blobs (mint / lavender / peach) fixed behind all content. Using
-   fixed + low opacity keeps it calm rather than distracting. */
+::selection {
+  background: rgb(var(--forest) / 0.18);
+}
+
+/* Anchored sections never hide under the sticky header. */
+[id] {
+  scroll-margin-top: 5rem;
+}
+
+/* The pastel ground: three very soft fixed washes. Fixed + low opacity keeps
+   it atmospheric rather than distracting, and it costs one paint. */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.55;
+  opacity: 0.7;
   background-image:
-    radial-gradient(38rem 26rem at 8% -6%, rgba(196, 186, 240, 0.28), transparent 60%),
-    radial-gradient(34rem 24rem at 96% 8%, rgba(168, 219, 197, 0.26), transparent 60%),
-    radial-gradient(30rem 22rem at 50% 105%, rgba(247, 202, 173, 0.22), transparent 60%);
+    radial-gradient(42rem 30rem at 4% -8%, rgba(196, 186, 240, 0.3), transparent 62%),
+    radial-gradient(36rem 26rem at 98% 4%, rgba(168, 219, 197, 0.26), transparent 62%),
+    radial-gradient(34rem 24rem at 62% 108%, rgba(247, 202, 173, 0.2), transparent 62%);
 }
 .dark body::before {
-  opacity: 0.35;
+  opacity: 0.4;
   background-image:
-    radial-gradient(38rem 26rem at 8% -6%, rgba(162, 150, 214, 0.22), transparent 60%),
-    radial-gradient(34rem 24rem at 96% 8%, rgba(120, 180, 156, 0.18), transparent 60%),
-    radial-gradient(30rem 22rem at 50% 105%, rgba(214, 164, 132, 0.16), transparent 60%);
+    radial-gradient(42rem 30rem at 4% -8%, rgba(162, 150, 214, 0.22), transparent 62%),
+    radial-gradient(36rem 26rem at 98% 4%, rgba(120, 180, 156, 0.16), transparent 62%),
+    radial-gradient(34rem 24rem at 62% 108%, rgba(214, 164, 132, 0.14), transparent 62%);
 }
 
-/* ── Layer components ─────────────────────────────────────── */
 @layer components {
-  /* Monospaced structural label — kept for data-dense labels/eyebrows */
+  /* ── Typography helpers ─────────────────────────────────
+     `label` is the everyday small caps label (sans, readable).
+     `label-mono` stays for genuinely machine-ish data: admission
+     numbers, receipt numbers, codes. Not for section headings. */
+  .label {
+    @apply text-2xs font-semibold uppercase tracking-[0.09em] text-ink-3;
+  }
+
   .label-mono {
-    @apply font-mono text-2xs uppercase tracking-[0.12em] text-ink-3 font-medium;
+    @apply font-mono text-2xs uppercase tracking-[0.1em] font-medium text-ink-3;
   }
 
   .tabular {
@@ -159,55 +209,87 @@ body::before {
     @apply border border-line;
   }
 
-  /* Soft floating card — rounded, airy shadow, near-invisible border */
+  /* ── Surfaces ───────────────────────────────────────────── */
   .card {
-    @apply bg-surface hairline rounded-lg;
+    @apply rounded-lg border border-line bg-surface;
   }
 
-  /* Frosted glass panel for headers/overlays that float above the pastel glow */
+  /* A card that responds to pointer — only for genuinely clickable ones. */
+  .card-interactive {
+    @apply transition-all duration-200 ease-soft hover:-translate-y-[2px] hover:border-line-strong hover:shadow-lift active:translate-y-0;
+  }
+
   .glass {
-    @apply border border-white/40 bg-white/60 backdrop-blur-md dark:border-white/10 dark:bg-white/5;
+    @apply border-white/50 bg-white/70 backdrop-blur-md dark:border-white/10 dark:bg-white/[0.06];
   }
 
-  /* Focus ring consistent everywhere — soft lavender halo, no offset harshness */
+  /* Quiet inset area inside a card — summaries, receipts, previews. */
+  .well {
+    @apply rounded-md border border-line bg-surface-2/70;
+  }
+
+  /* ── Focus ──────────────────────────────────────────────
+     One ring for the whole product. Offset against the local
+     surface so it reads on cards and on the page ground alike. */
   .ring-focus {
-    @apply outline-none focus-visible:ring-2 focus-visible:ring-forest/40 focus-visible:ring-offset-2 focus-visible:ring-offset-paper;
+    @apply outline-none focus-visible:ring-2 focus-visible:ring-forest/50 focus-visible:ring-offset-2 focus-visible:ring-offset-paper;
+  }
+  .ring-focus-tight {
+    @apply outline-none focus-visible:ring-2 focus-visible:ring-forest/50;
   }
 
-  /* Shimmer skeleton — replaces flat pulse with a soft moving highlight */
+  /* Keyboard-only skip target. */
+  .skip-link {
+    @apply fixed left-4 top-4 z-[60] -translate-y-20 rounded-pill bg-forest px-4 py-2 text-sm font-semibold text-white shadow-pop transition-transform focus:translate-y-0;
+  }
+
+  /* ── Loading ────────────────────────────────────────────── */
   .skeleton-shimmer {
+    background-color: rgb(var(--surface-2));
     background-image: linear-gradient(
       100deg,
-      rgb(var(--surface-2)) 30%,
-      rgba(255, 255, 255, 0.65) 50%,
-      rgb(var(--surface-2)) 70%
+      transparent 20%,
+      rgba(255, 255, 255, 0.7) 50%,
+      transparent 80%
     );
     background-size: 200% 100%;
-    animation: shimmer 1.6s linear infinite;
+    background-repeat: no-repeat;
+    animation: shimmer 1.8s linear infinite;
   }
   .dark .skeleton-shimmer {
     background-image: linear-gradient(
       100deg,
-      rgb(var(--surface-2)) 30%,
-      rgba(255, 255, 255, 0.08) 50%,
-      rgb(var(--surface-2)) 70%
+      transparent 20%,
+      rgba(255, 255, 255, 0.07) 50%,
+      transparent 80%
     );
   }
 
-  /* Stagger helper for list/card entrances */
+  /* ── Entrance choreography ──────────────────────────────
+     Children reveal in sequence so a screen resolves top-down
+     the way the eye reads it. Capped at 12 so long lists don't
+     stagger into a visible delay. */
   .stagger-in > * {
-    animation: fade-up 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: fade-up 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
-  .stagger-in > *:nth-child(1) { animation-delay: 20ms; }
-  .stagger-in > *:nth-child(2) { animation-delay: 60ms; }
-  .stagger-in > *:nth-child(3) { animation-delay: 100ms; }
-  .stagger-in > *:nth-child(4) { animation-delay: 140ms; }
-  .stagger-in > *:nth-child(5) { animation-delay: 180ms; }
-  .stagger-in > *:nth-child(6) { animation-delay: 220ms; }
-  .stagger-in > *:nth-child(7) { animation-delay: 260ms; }
-  .stagger-in > *:nth-child(8) { animation-delay: 300ms; }
+  .stagger-in > *:nth-child(1) { animation-delay: 0ms; }
+  .stagger-in > *:nth-child(2) { animation-delay: 35ms; }
+  .stagger-in > *:nth-child(3) { animation-delay: 70ms; }
+  .stagger-in > *:nth-child(4) { animation-delay: 105ms; }
+  .stagger-in > *:nth-child(5) { animation-delay: 140ms; }
+  .stagger-in > *:nth-child(6) { animation-delay: 175ms; }
+  .stagger-in > *:nth-child(7) { animation-delay: 210ms; }
+  .stagger-in > *:nth-child(8) { animation-delay: 245ms; }
+  .stagger-in > *:nth-child(9) { animation-delay: 280ms; }
+  .stagger-in > *:nth-child(10) { animation-delay: 315ms; }
+  .stagger-in > *:nth-child(11) { animation-delay: 350ms; }
+  .stagger-in > *:nth-child(12) { animation-delay: 385ms; }
 
-  /* Scrollbar */
+  /* ── Scrollbars ─────────────────────────────────────────── */
+  .thin-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--line-strong)) transparent;
+  }
   .thin-scroll::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -219,9 +301,30 @@ body::before {
     background: rgb(var(--line-strong));
     border-radius: 99px;
   }
+
+  /* Horizontal scrollers fade at the edge so it's clear there is more. */
+  .edge-fade {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+    mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+  }
+
+  /* Screen-reader-only text (Tailwind's sr-only, named for intent). */
+  .visually-hidden {
+    @apply sr-only;
+  }
 }
 
-/* ── Print: report cards & receipts ───────────────────────── */
+@layer utilities {
+  /* Safe-area helpers for the installed PWA on notched phones. */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+/* ── Print: report cards & receipts ─────────────────────── */
 @media print {
   @page {
     size: A4;
@@ -257,7 +360,8 @@ body::before {
   }
 }
 
-/* Respect reduced motion */
+/* Respect reduced motion — animation becomes an instant state change,
+   never a removed one, so nothing disappears for these users. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

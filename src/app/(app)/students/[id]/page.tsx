@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { ArrowLeft, FileText, Phone, MessageSquare } from 'lucide-react'
+import { ArrowLeft, ChevronRight, FileText, Phone, MessageSquare, UserRound } from 'lucide-react'
 
 import { usePrefs } from '@/lib/i18n/provider'
 import { repo } from '@/lib/data/repository'
@@ -12,11 +12,12 @@ import type {
 } from '@/lib/data/types'
 import { formatDate, formatINR } from '@/lib/utils'
 import {
-  Avatar, Badge, Button, Card, CardHeader, PageHeader, Progress, Skeleton, Stat, Table, Td, Th,
+  Avatar, Badge, Button, Card, CardHeader, Empty, PageHeader, Progress, Skeleton, Stat,
+  Table, Td, Th,
 } from '@/components/ui'
 
 const STATUS_TONE = {
-  paid: 'forest', partial: 'clay', pending: 'neutral', overdue: 'danger',
+  paid: 'leaf', partial: 'clay', pending: 'neutral', overdue: 'danger',
 } as const
 
 export default function StudentDetailPage() {
@@ -70,11 +71,24 @@ export default function StudentDetailPage() {
 
   if (!student) {
     return (
-      <Card className="p-8 text-center">
-        <p className="text-sm text-ink-2">{t('common.noResults')}</p>
-        <Link href="/students" className="mt-3 inline-block text-sm text-forest hover:underline">
-          ← {t('stu.title')}
-        </Link>
+      <Card>
+        <Empty
+          title={t('common.noResults')}
+          hint={
+            locale === 'ta'
+              ? 'இந்த மாணவர் பதிவு கிடைக்கவில்லை. பட்டியலுக்குத் திரும்பவும்.'
+              : 'That student record could not be found. It may have been moved or removed.'
+          }
+          icon={<UserRound size={26} />}
+          action={
+            <Link href="/students">
+              <Button variant="outline" size="sm">
+                <ArrowLeft size={14} aria-hidden />
+                {t('stu.title')}
+              </Button>
+            </Link>
+          }
+        />
       </Card>
     )
   }
@@ -95,9 +109,9 @@ export default function StudentDetailPage() {
     <>
       <Link
         href="/students"
-        className="mb-3 inline-flex items-center gap-1.5 text-xs font-medium text-ink-3 hover:text-forest"
+        className="mb-4 inline-flex items-center gap-1.5 rounded-pill py-1 text-xs font-semibold text-ink-3 ring-focus transition-colors hover:text-forest"
       >
-        <ArrowLeft size={14} />
+        <ArrowLeft size={14} aria-hidden />
         {t('stu.title')}
       </Link>
 
@@ -109,7 +123,7 @@ export default function StudentDetailPage() {
           <div className="flex gap-2">
             <a href={`tel:${student.guardian_phone}`}>
               <Button variant="outline" size="sm">
-                <Phone size={14} />
+                <Phone size={14} aria-hidden />
                 {locale === 'ta' ? 'அழை' : 'Call'}
               </Button>
             </a>
@@ -119,7 +133,7 @@ export default function StudentDetailPage() {
               rel="noopener noreferrer"
             >
               <Button variant="outline" size="sm">
-                <MessageSquare size={14} />
+                <MessageSquare size={14} aria-hidden />
                 WhatsApp
               </Button>
             </a>
@@ -133,7 +147,7 @@ export default function StudentDetailPage() {
           value={`${summary?.percentage ?? 0}%`}
           tone={
             (summary?.percentage ?? 0) >= 90
-              ? 'forest'
+              ? 'leaf'
               : (summary?.percentage ?? 0) >= 75
                 ? 'clay'
                 : 'danger'
@@ -146,8 +160,9 @@ export default function StudentDetailPage() {
               </span>
               <Progress
                 value={summary?.percentage ?? 0}
-                className="mt-1.5"
-                tone={(summary?.percentage ?? 0) >= 75 ? 'forest' : 'danger'}
+                className="mt-2"
+                tone={(summary?.percentage ?? 0) >= 75 ? 'leaf' : 'danger'}
+                label={t('stu.attendanceRate')}
               />
             </>
           }
@@ -155,7 +170,7 @@ export default function StudentDetailPage() {
         <Stat
           label={t('stu.feeStatus')}
           value={outstanding > 0 ? formatINR(outstanding, { compact: true }) : t('par.noDues')}
-          tone={outstanding > 0 ? 'danger' : 'forest'}
+          tone={outstanding > 0 ? 'danger' : 'leaf'}
           sub={
             outstanding > 0
               ? locale === 'ta'
@@ -178,13 +193,13 @@ export default function StudentDetailPage() {
         {/* ── Profile ─────────────────────────────────── */}
         <Card>
           <CardHeader title={t('stu.profile')} />
-          <div className="flex items-center gap-3 border-b border-line px-4 py-3">
-            <Avatar name={student.name} size={48} />
+          <div className="flex items-center gap-3.5 border-b border-line px-4 py-4 sm:px-5">
+            <Avatar name={student.name} size={52} />
             <div className="min-w-0">
               <div className="font-semibold text-ink">
                 {locale === 'ta' ? student.name_ta : student.name}
               </div>
-              <div className="font-mono text-2xs text-ink-3">
+              <div className="text-2xs text-ink-3">
                 {student.gender === 'M'
                   ? locale === 'ta' ? 'ஆண்' : 'Male'
                   : locale === 'ta' ? 'பெண்' : 'Female'}{' '}
@@ -195,13 +210,13 @@ export default function StudentDetailPage() {
           </div>
           <dl className="divide-y divide-line">
             {details.map(([k, v]) => (
-              <div key={k} className="flex gap-3 px-4 py-2.5 text-sm">
+              <div key={k} className="flex gap-3 px-4 py-3 text-sm sm:px-5">
                 <dt className="w-32 shrink-0 text-ink-3">{k}</dt>
                 <dd className="min-w-0 flex-1 font-medium text-ink">{v}</dd>
               </div>
             ))}
             {student.transport_route && (
-              <div className="flex gap-3 px-4 py-2.5 text-sm">
+              <div className="flex gap-3 px-4 py-3 text-sm sm:px-5">
                 <dt className="w-32 shrink-0 text-ink-3">
                   {locale === 'ta' ? 'போக்குவரத்து' : 'Transport'}
                 </dt>
@@ -253,18 +268,20 @@ export default function StudentDetailPage() {
                 <Link
                   key={e.id}
                   href={`/report-card/${student.id}?exam=${e.id}`}
-                  className="flex items-center gap-3 px-4 py-3 hover:bg-surface-2"
+                  className="flex items-center gap-3 px-4 py-3.5 ring-focus transition-colors hover:bg-surface-2/70 sm:px-5"
                 >
-                  <FileText size={16} className="shrink-0 text-ink-3" />
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-pill bg-lavender/35 text-forest-2" aria-hidden>
+                    <FileText size={16} />
+                  </span>
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-sm font-medium text-ink">
                       {locale === 'ta' ? e.name_ta : e.name}
                     </div>
-                    <div className="font-mono text-2xs text-ink-3">
+                    <div className="text-2xs text-ink-3">
                       {formatDate(e.start_date)} — {formatDate(e.end_date)}
                     </div>
                   </div>
-                  <Badge tone="forest">{t('exam.generateReportCard')}</Badge>
+                  <ChevronRight size={16} className="shrink-0 text-ink-3" aria-hidden />
                 </Link>
               ))}
             </div>
